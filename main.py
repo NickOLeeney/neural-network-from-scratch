@@ -15,7 +15,7 @@ def main():
     num_iterations = 3000
     print_cost = False
 
-    deep_neural_network(X, Y, layers_dims, cost_function, learning_rate, num_iterations, print_cost)
+    parameters, costs = deep_neural_network(X, Y, layers_dims, cost_function, learning_rate, num_iterations, print_cost)
 
 
 def deep_neural_network(X, Y, layers_dims, cost_function, learning_rate=0.0075, num_iterations=3000, print_cost=False):
