@@ -22,7 +22,7 @@ def cross_entropy_cost(AL, Y):
     return cost
 
 
-def cross_entropy_derivative(AL, Y):
+def cross_entropy_derivative(Y, AL):
     """
     Implement the Cross Entropy analytical derivative
 

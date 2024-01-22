@@ -6,16 +6,16 @@ from utils.initialization import initialize_parameters_deep
 from utils.forwardPropagation import L_model_forward
 
 
-def main():
-    X = None
-    Y = None
-    layers_dims = None
-    cost_function = 'cross_entropy'
-    learning_rate = 0.0075
-    num_iterations = 3000
-    print_cost = False
-
-    parameters, costs = deep_neural_network(X, Y, layers_dims, cost_function, learning_rate, num_iterations, print_cost)
+# def main():
+#     X = None
+#     Y = None
+#     layers_dims = None
+#     cost_function = 'cross_entropy'
+#     learning_rate = 0.0075
+#     num_iterations = 3000
+#     print_cost = False
+#
+#     parameters, costs = deep_neural_network(X, Y, layers_dims, cost_function, learning_rate, num_iterations, print_cost)
 
 
 def deep_neural_network(X, Y, layers_dims, cost_function, learning_rate=0.0075, num_iterations=3000, print_cost=False):
@@ -67,5 +67,38 @@ def deep_neural_network(X, Y, layers_dims, cost_function, learning_rate=0.0075, 
     return parameters, costs
 
 
-if __name__ == '__main__':
-    main()
+def predict(X, y, parameters):
+    """
+    This function is used to predict the results of a  L-layer neural network.
+
+    Arguments:
+    X -- data set of examples you would like to label
+    parameters -- parameters of the trained model
+
+    Returns:
+    p -- predictions for the given dataset X
+    """
+
+    m = X.shape[1]
+    n = len(parameters) // 2  # number of layers in the neural network
+    p = np.zeros((1, m))
+
+    # Forward propagation
+    probas, caches = L_model_forward(X, parameters)
+
+    # convert probas to 0/1 predictions
+    for i in range(0, probas.shape[1]):
+        if probas[0, i] > 0.5:
+            p[0, i] = 1
+        else:
+            p[0, i] = 0
+
+    # print results
+    # print ("predictions: " + str(p))
+    # print ("true labels: " + str(y))
+    print("Accuracy: " + str(np.sum((p == y) / m)))
+
+    return p
+
+# if __name__ == '__main__':
+#     main()
