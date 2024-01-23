@@ -40,7 +40,6 @@ class NeuralNetworkFromScratch:
 
         # Loop (gradient descent)
         for i in range(0, self.num_iterations):
-
             # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> SIGMOID.
             AL, caches = L_model_forward(X, parameters)
 
