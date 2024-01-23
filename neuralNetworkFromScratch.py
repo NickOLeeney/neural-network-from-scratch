@@ -1,24 +1,25 @@
 import numpy as np
 
 from utils.backwardPropagation import L_model_backward, update_parameters
-from utils.costFunctions import cross_entropy_cost
 from utils.initialization import initialize_parameters_deep
 from utils.forwardPropagation import L_model_forward
+from utils.costFunctions import *
 
 
 class NeuralNetworkFromScratch:
-    def __init__(self, layers_dims, cost_function, learning_rate=0.0075, num_iterations=3000, print_cost=False):
+    def __init__(self, layers_dims, learning_rate=0.0075, num_iterations=3000, print_cost=False):
         self.costs = None
         self.parameters = None
         self.layers_dims = layers_dims
-        self.cost_function = cost_function
         self.learning_rate = learning_rate
         self.num_iterations = num_iterations
         self.print_cost = print_cost
 
+    # GRADED FUNCTION: L_layer_model
+
     def fit(self, X, Y):
         """
-        Implements an L-layer neural network: [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID.
+        Implements a L-layer neural network: [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID.
 
         Arguments:
         X -- input data, of shape (n_x, number of examples)
@@ -36,24 +37,42 @@ class NeuralNetworkFromScratch:
         costs = []  # keep track of cost
 
         # Parameters initialization.
+        # (≈ 1 line of code)
+        # parameters = ...
+        # YOUR CODE STARTS HERE
         parameters = initialize_parameters_deep(self.layers_dims)
+        # YOUR CODE ENDS HERE
 
         # Loop (gradient descent)
         for i in range(0, self.num_iterations):
+
             # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> SIGMOID.
+            # (≈ 1 line of code)
+            # AL, caches = ...
+            # YOUR CODE STARTS HERE
             AL, caches = L_model_forward(X, parameters)
+            # YOUR CODE ENDS HERE
 
             # Compute cost.
-            if self.cost_function == 'cross_entropy':
-                cost = cross_entropy_cost(AL, Y)
-            else:
-                raise Exception('Must specify a valid Cost Function')
+            # (≈ 1 line of code)
+            # cost = ...
+            # YOUR CODE STARTS HERE
+            cost = compute_cost(AL, Y)
+            # YOUR CODE ENDS HERE
 
             # Backward propagation.
-            grads = L_model_backward(AL, Y, caches, self.cost_function)
+            # (≈ 1 line of code)
+            # grads = ...
+            # YOUR CODE STARTS HERE
+            grads = L_model_backward(AL, Y, caches)
+            # YOUR CODE ENDS HERE
 
             # Update parameters.
+            # (≈ 1 line of code)
+            # parameters = ...
+            # YOUR CODE STARTS HERE
             parameters = update_parameters(parameters, grads, self.learning_rate)
+            # YOUR CODE ENDS HERE
 
             # Print the cost every 100 iterations
             if self.print_cost and i % 100 == 0 or i == self.num_iterations - 1:
@@ -61,8 +80,6 @@ class NeuralNetworkFromScratch:
             if i % 100 == 0 or i == self.num_iterations:
                 costs.append(cost)
 
-        self.parameters = parameters
-        self.costs = costs
         return parameters, costs
 
     def predict(self, X, y):
@@ -92,6 +109,8 @@ class NeuralNetworkFromScratch:
                 p[0, i] = 0
 
         # print results
+        # print ("predictions: " + str(p))
+        # print ("true labels: " + str(y))
         print("Accuracy: " + str(np.sum((p == y) / m)))
 
         return p

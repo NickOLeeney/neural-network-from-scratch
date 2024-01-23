@@ -1,6 +1,5 @@
+import numpy as np
 from utils.activationFunctions import *
-
-
 def linear_forward(A, W, b):
     """
     Implement the linear part of a layer's forward propagation.
@@ -11,17 +10,17 @@ def linear_forward(A, W, b):
     b -- bias vector, numpy array of shape (size of the current layer, 1)
 
     Returns:
-    Z -- the input of the activation function, also called pre-activation parameter
-    cache -- a python tuple containing "A", "W" and "b" ; stored for computing the backward pass efficiently
+    Z -- the input of the activation function, also called pre-activation parameter 
+    cache -- a python dictionary containing "A", "W" and "b" ; stored for computing the backward pass efficiently
     """
 
-    Z = np.dot(W, A) + b
+    Z = W.dot(A) + b
+
+    assert (Z.shape == (W.shape[0], A.shape[1]))
     cache = (A, W, b)
 
     return Z, cache
 
-
-# GRADED FUNCTION: linear_activation_forward
 
 def linear_activation_forward(A_prev, W, b, activation):
     """
@@ -35,22 +34,24 @@ def linear_activation_forward(A_prev, W, b, activation):
 
     Returns:
     A -- the output of the activation function, also called the post-activation value
-    cache -- a python tuple containing "linear_cache" and "activation_cache";
+    cache -- a python dictionary containing "linear_cache" and "activation_cache";
              stored for computing the backward pass efficiently
     """
 
-    linear_cache = None
-    activation_cache = None
-    A = None
-
     if activation == "sigmoid":
+        # Inputs: "A_prev, W, b". Outputs: "A, activation_cache".
         Z, linear_cache = linear_forward(A_prev, W, b)
         A, activation_cache = sigmoid(Z)
 
     elif activation == "relu":
+        # Inputs: "A_prev, W, b". Outputs: "A, activation_cache".
         Z, linear_cache = linear_forward(A_prev, W, b)
         A, activation_cache = relu(Z)
 
+    else:
+        print("\033[91mError! Please make sure you have passed the value correctly in the \"activation\" parameter")
+
+    assert (A.shape == (W.shape[0], A_prev.shape[1]))
     cache = (linear_cache, activation_cache)
 
     return A, cache
@@ -65,9 +66,10 @@ def L_model_forward(X, parameters):
     parameters -- output of initialize_parameters_deep()
 
     Returns:
-    AL -- activation value from the output (last) layer
+    AL -- last post-activation value
     caches -- list of caches containing:
-                every cache of linear_activation_forward() (there are L of them, indexed from 0 to L-1)
+                every cache of linear_relu_forward() (there are L-1 of them, indexed from 0 to L-2)
+                the cache of linear_sigmoid_forward() (there is one, indexed L-1)
     """
 
     caches = []
@@ -75,13 +77,16 @@ def L_model_forward(X, parameters):
     L = len(parameters) // 2  # number of layers in the neural network
 
     # Implement [LINEAR -> RELU]*(L-1). Add "cache" to the "caches" list.
-    # The for loop starts at 1 because layer 0 is the input
     for l in range(1, L):
         A_prev = A
-        A, cache = linear_activation_forward(A_prev, parameters['W' + str(l)], parameters['b' + str(l)], 'relu')
+        A, cache = linear_activation_forward(A_prev, parameters['W' + str(l)], parameters['b' + str(l)],
+                                             activation="relu")
         caches.append(cache)
 
-    AL, cache = linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], 'sigmoid')
+    # Implement LINEAR -> SIGMOID. Add "cache" to the "caches" list.
+    AL, cache = linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], activation="sigmoid")
     caches.append(cache)
+
+    assert (AL.shape == (1, X.shape[1]))
 
     return AL, caches
