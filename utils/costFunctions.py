@@ -17,9 +17,28 @@ def cross_entropy_cost(AL, Y):
 
     # Compute loss from aL and y.
     cost = (1. / m) * (-np.dot(Y, np.log(AL).T) - np.dot(1 - Y, np.log(1 - AL).T))
-    cost = (1. / m) * (-np.dot(Y, np.log(AL).T) - np.dot(1 - Y, np.log(1 - AL).T))
     cost = np.squeeze(cost)  # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
 
+    return cost
+
+
+def rmse_cost(AL, Y):
+    """
+    Implement the RMSE cost function.
+
+    Arguments:
+    AL -- output vector corresponding to your label predictions, shape (1, number of examples)
+    Y -- true "label" vector, shape (1, number of examples)
+
+    Returns:
+    cost -- cross-entropy cost
+    """
+
+    m = Y.shape[1]
+
+    # Compute loss from aL and y.
+    cost = (1. / (2. * m)) * (np.sum((AL - Y) ** 2))
+    cost = np.squeeze(cost)  # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
 
     return cost
 
@@ -37,4 +56,20 @@ def cross_entropy_derivative(Y, AL):
     """
 
     derivative_cost = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
+    return derivative_cost
+
+
+def rmse_derivative(Y, AL):
+    """
+    Implement the RMSE analytical derivative
+
+    Arguments:
+    AL -- output vector corresponding to your label predictions, shape (1, number of examples)
+    Y -- true "label" vector, shape (1, number of examples)
+
+    Returns:
+    derivative_cost -- RMSE derivative cost
+    """
+
+    derivative_cost = (AL - Y)
     return derivative_cost

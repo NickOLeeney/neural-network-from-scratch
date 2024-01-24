@@ -1,7 +1,7 @@
 import copy
 
 from utils.activationFunctions import *
-from utils.costFunctions import cross_entropy_derivative
+from utils.costFunctions import *
 
 
 def linear_backward(dZ, cache):
@@ -56,7 +56,10 @@ def linear_activation_backward(dA, cache, activation):
 
         dZ = sigmoid_backward(dA, activation_cache)
         dA_prev, dW, db = linear_backward(dZ, linear_cache)
-        # YOUR CODE ENDS HERE
+
+    elif activation == "linear":
+        dZ = dA
+        dA_prev, dW, db = linear_backward(dZ, linear_cache)
 
     return dA_prev, dW, db
 
@@ -88,12 +91,21 @@ def L_model_backward(AL, Y, caches, cost_function):
     # Initializing the backpropagation
     if cost_function == 'cross_entropy':
         dAL = cross_entropy_derivative(Y, AL)
+    if cost_function == 'RMSE':
+        dAL = rmse_derivative(Y, AL)
     else:
         raise Exception('Must specify a valid cost function')
 
     # Lth layer (SIGMOID -> LINEAR) gradients. Inputs: "dAL, current_cache". Outputs: "grads["dAL-1"], grads["dWL"],
     current_cache = caches[L - 1]
-    dA_prev_temp, dW_temp, db_temp = linear_activation_backward(dAL, current_cache, 'sigmoid')
+
+    if cost_function == 'cross_entropy':
+        dA_prev_temp, dW_temp, db_temp = linear_activation_backward(dAL, current_cache, 'sigmoid')
+    if cost_function == 'RMSE':
+        dA_prev_temp, dW_temp, db_temp = linear_activation_backward(dAL, current_cache, 'linear')
+    else:
+        raise Exception('Moust specify a valid loss function')
+
     grads["dA" + str(L - 1)] = dA_prev_temp
     grads["dW" + str(L)] = dW_temp
     grads["db" + str(L)] = db_temp
@@ -101,9 +113,6 @@ def L_model_backward(AL, Y, caches, cost_function):
     # Loop from l=L-2 to l=0
     for l in reversed(range(L - 1)):
         # lth layer: (RELU -> LINEAR) gradients.
-        # Inputs: "grads["dA" + str(l + 1)], current_cache". Outputs: "grads["dA" + str(l)] , grads["dW" + str(l + 1)],
-        # grads["db" + str(l + 1)]
-
         current_cache = caches[l]
         dA_prev_temp, dW_temp, db_temp = linear_activation_backward(grads["dA" + str(l + 1)], current_cache, 'relu')
         grads["dA" + str(l)] = dA_prev_temp

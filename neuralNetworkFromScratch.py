@@ -1,7 +1,7 @@
 import numpy as np
 
 from utils.backwardPropagation import L_model_backward, update_parameters
-from utils.costFunctions import cross_entropy_cost
+from utils.costFunctions import *
 from utils.initialization import initialize_parameters_deep
 from utils.forwardPropagation import L_model_forward
 
@@ -46,6 +46,8 @@ class NeuralNetworkFromScratch:
             # Compute cost.
             if self.cost_function == 'cross_entropy':
                 cost = cross_entropy_cost(AL, Y)
+            elif self.cost_function == 'RMSE':
+                cost = rmse_cost(AL, Y)
             else:
                 raise Exception('Must specify a valid Cost Function')
 
@@ -80,18 +82,24 @@ class NeuralNetworkFromScratch:
         m = X.shape[1]
         n = len(self.parameters) // 2  # number of layers in the neural network
         p = np.zeros((1, m))
+        outcome = None
 
         # Forward propagation
-        probas, caches = L_model_forward(X, self.parameters)
+        inference, caches = L_model_forward(X, self.parameters)
 
-        # convert probas to 0/1 predictions
-        for i in range(0, probas.shape[1]):
-            if probas[0, i] > 0.5:
-                p[0, i] = 1
-            else:
-                p[0, i] = 0
+        if self.cost_function == 'cross_entropy':
+            # convert probas to 0/1 predictions
+            for i in range(0, inference.shape[1]):
+                if inference[0, i] > 0.5:
+                    p[0, i] = 1
+                else:
+                    p[0, i] = 0
+            print("Accuracy: " + str(np.sum((p == y) / m)))
+            outcome = p
 
-        # print results
-        print("Accuracy: " + str(np.sum((p == y) / m)))
+        elif self.cost_function == 'RMSE':
+            rmse = (1. / (2. * m)) * (np.sum((inference - y) ** 2))
+            print("RMSE: " + str(np.sum((p == y) / m)))
+            outcome = inference
 
-        return p
+        return outcome
