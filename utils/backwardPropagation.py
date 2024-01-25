@@ -91,7 +91,7 @@ def L_model_backward(AL, Y, caches, cost_function):
     # Initializing the backpropagation
     if cost_function == 'cross_entropy':
         dAL = cross_entropy_derivative(Y, AL)
-    if cost_function == 'RMSE':
+    elif cost_function == 'RMSE':
         dAL = rmse_derivative(Y, AL)
     else:
         raise Exception('Must specify a valid cost function')
@@ -101,7 +101,7 @@ def L_model_backward(AL, Y, caches, cost_function):
 
     if cost_function == 'cross_entropy':
         dA_prev_temp, dW_temp, db_temp = linear_activation_backward(dAL, current_cache, 'sigmoid')
-    if cost_function == 'RMSE':
+    elif cost_function == 'RMSE':
         dA_prev_temp, dW_temp, db_temp = linear_activation_backward(dAL, current_cache, 'linear')
     else:
         raise Exception('Moust specify a valid loss function')
