@@ -4,6 +4,7 @@ from utils.backwardPropagation import L_model_backward, update_parameters
 from utils.costFunctions import *
 from utils.initialization import initialize_parameters_deep
 from utils.forwardPropagation import L_model_forward
+from utils.preprocessing import process_data
 
 
 class NeuralNetworkFromScratch:
@@ -16,7 +17,7 @@ class NeuralNetworkFromScratch:
         self.num_iterations = num_iterations
         self.print_cost = print_cost
 
-    def fit(self, X, Y, i_debug):
+    def fit(self, X, Y):
         """
         Implements an L-layer neural network: [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID.
 
@@ -32,6 +33,9 @@ class NeuralNetworkFromScratch:
         parameters -- parameters learnt by the model. They can then be used to predict.
         """
 
+        # X = process_data(X)
+        # Y = process_data(Y)
+
         np.random.seed(1)
         costs = []  # keep track of cost
 
@@ -40,10 +44,6 @@ class NeuralNetworkFromScratch:
 
         # Loop (gradient descent)
         for i in range(0, self.num_iterations):
-            # DEBUG
-            if i == 242:
-                print('i = 242')
-            #
             # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> SIGMOID.
             AL, caches = L_model_forward(X, parameters, self.cost_function)
 
@@ -67,11 +67,6 @@ class NeuralNetworkFromScratch:
             if i % 100 == 0 or i == self.num_iterations:
                 costs.append(cost)
 
-            # DEBUG
-            if i == i_debug:
-                print("Cost after iteration {}: {}".format(i, np.squeeze(cost)))
-            #
-
         self.parameters = parameters
         self.costs = costs
         return parameters, costs
@@ -87,6 +82,9 @@ class NeuralNetworkFromScratch:
         Returns:
         p -- predictions for the given dataset X
         """
+
+        # X = process_data(X)
+        # y = process_data(y)
 
         m = X.shape[1]
         n = len(self.parameters) // 2  # number of layers in the neural network
