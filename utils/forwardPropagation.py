@@ -51,12 +51,16 @@ def linear_activation_forward(A_prev, W, b, activation):
         Z, linear_cache = linear_forward(A_prev, W, b)
         A, activation_cache = relu(Z)
 
+    elif activation == 'linear':
+        Z, linear_cache = linear_forward(A_prev, W, b)
+        A, activation_cache = linear(Z)
+
     cache = (linear_cache, activation_cache)
 
     return A, cache
 
 
-def L_model_forward(X, parameters):
+def L_model_forward(X, parameters, cost_function):
     """
     Implement forward propagation for the [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID computation
 
@@ -81,7 +85,13 @@ def L_model_forward(X, parameters):
         A, cache = linear_activation_forward(A_prev, parameters['W' + str(l)], parameters['b' + str(l)], 'relu')
         caches.append(cache)
 
-    AL, cache = linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], 'sigmoid')
+    if cost_function == 'cross_entropy':
+        AL, cache = linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], 'sigmoid')
+    elif cost_function == 'RMSE':
+        AL, cache = linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], 'linear')
+    else:
+        raise Exception('Must specify a valid Cost Function')
+
     caches.append(cache)
 
     return AL, caches

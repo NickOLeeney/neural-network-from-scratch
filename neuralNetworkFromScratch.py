@@ -16,7 +16,7 @@ class NeuralNetworkFromScratch:
         self.num_iterations = num_iterations
         self.print_cost = print_cost
 
-    def fit(self, X, Y):
+    def fit(self, X, Y, i_debug):
         """
         Implements an L-layer neural network: [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID.
 
@@ -40,8 +40,12 @@ class NeuralNetworkFromScratch:
 
         # Loop (gradient descent)
         for i in range(0, self.num_iterations):
+            # DEBUG
+            if i == 242:
+                print('i = 242')
+            #
             # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> SIGMOID.
-            AL, caches = L_model_forward(X, parameters)
+            AL, caches = L_model_forward(X, parameters, self.cost_function)
 
             # Compute cost.
             if self.cost_function == 'cross_entropy':
@@ -62,6 +66,11 @@ class NeuralNetworkFromScratch:
                 print("Cost after iteration {}: {}".format(i, np.squeeze(cost)))
             if i % 100 == 0 or i == self.num_iterations:
                 costs.append(cost)
+
+            # DEBUG
+            if i == i_debug:
+                print("Cost after iteration {}: {}".format(i, np.squeeze(cost)))
+            #
 
         self.parameters = parameters
         self.costs = costs
@@ -85,7 +94,7 @@ class NeuralNetworkFromScratch:
         outcome = None
 
         # Forward propagation
-        inference, caches = L_model_forward(X, self.parameters)
+        inference, caches = L_model_forward(X, self.parameters, self.cost_function)
 
         if self.cost_function == 'cross_entropy':
             # convert probas to 0/1 predictions
@@ -99,7 +108,7 @@ class NeuralNetworkFromScratch:
 
         elif self.cost_function == 'RMSE':
             rmse = (1. / (2. * m)) * (np.sum((inference - y) ** 2))
-            print("RMSE: " + str(np.sum((p == y) / m)))
+            print("RMSE: " + str(rmse))
             outcome = inference
 
         return outcome
