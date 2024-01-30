@@ -85,28 +85,33 @@ class NeuralNetworkFromScratch:
 
         # X = process_data(X)
         # y = process_data(y)
-
-        m = X.shape[1]
-        n = len(self.parameters) // 2  # number of layers in the neural network
-        p = np.zeros((1, m))
         outcome = None
 
-        # Forward propagation
-        inference, caches = L_model_forward(X, self.parameters, self.cost_function)
-
         if self.cost_function == 'cross_entropy':
+            # Forward propagation
+            inference, caches = L_model_forward(X, self.parameters, self.cost_function)
             # convert probas to 0/1 predictions
+            m = X.shape[1]
+            n = len(self.parameters) // 2  # number of layers in the neural network
+            p = np.zeros((1, m))
             for i in range(0, inference.shape[1]):
                 if inference[0, i] > 0.5:
                     p[0, i] = 1
                 else:
                     p[0, i] = 0
-            print("Accuracy: " + str(np.sum((p == y) / m)))
             outcome = p
+            print("Accuracy: " + str(np.sum((outcome == y) / m)))
 
         elif self.cost_function == 'RMSE':
-            rmse = (1. / (2. * m)) * (np.sum((inference - y) ** 2))
+            outcome = list()
+            for x in X[0]:
+                # Forward propagation
+                inference, caches = L_model_forward(x, self.parameters, self.cost_function)
+                outcome.append(inference[0][0])
+            outcome = np.array(outcome)
+            m = 1
+
+            rmse = (1. / (2. * m)) * (np.sum((outcome - y) ** 2))
             print("RMSE: " + str(rmse))
-            outcome = inference
 
         return outcome
