@@ -63,9 +63,9 @@ class NeuralNetworkFromScratch:
 
             # Print the cost every 100 iterations
             if self.print_cost and i % 100 == 0 or i == self.num_iterations - 1:
-                print("Cost after iteration {}: {}".format(i, np.squeeze(cost)))
+                print("Cost after iteration {}: {}".format(i, np.squeeze(cost**0.5)))
             if i % 100 == 0 or i == self.num_iterations:
-                costs.append(cost)
+                costs.append(cost**0.5)
 
         self.parameters = parameters
         self.costs = costs
@@ -111,7 +111,7 @@ class NeuralNetworkFromScratch:
             outcome = np.array(outcome)
             m = 1
 
-            rmse = (1. / (2. * m)) * (np.sum((outcome - y) ** 2))
-            print("RMSE: " + str(rmse))
+            cost = rmse_cost(outcome, y)
+            print("RMSE: " + str(cost**0.5))
 
         return outcome
