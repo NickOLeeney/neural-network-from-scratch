@@ -34,8 +34,8 @@ class NeuralNetworkFromScratch:
         parameters -- parameters learnt by the model. They can then be used to predict.
         """
 
-        # X = process_data(X)
-        # Y = process_data(Y)
+        X = process_data(X)
+        Y = process_data(Y)
 
         np.random.seed(1)
         costs = []  # keep track of cost
@@ -92,8 +92,8 @@ class NeuralNetworkFromScratch:
         p -- predictions for the given dataset X
         """
 
-        # X = process_data(X)
-        # y = process_data(y)
+        X = process_data(X)
+        y = process_data(y)
         outcome = None
 
         if self.cost_function == 'cross_entropy':
