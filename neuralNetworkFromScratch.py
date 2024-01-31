@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 from utils.backwardPropagation import L_model_backward, update_parameters
 from utils.costFunctions import *
@@ -17,7 +18,7 @@ class NeuralNetworkFromScratch:
         self.num_iterations = num_iterations
         self.print_cost = print_cost
 
-    def fit(self, X, Y):
+    def fit(self, X, Y, print_cost_function=False, print_every=100):
         """
         Implements an L-layer neural network: [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID.
 
@@ -62,13 +63,21 @@ class NeuralNetworkFromScratch:
             parameters = update_parameters(parameters, grads, self.learning_rate)
 
             # Print the cost every 100 iterations
-            if self.print_cost and i % 100 == 0 or i == self.num_iterations - 1:
+            if self.print_cost and i % print_every == 0 or i == self.num_iterations - 1:
                 print("Cost after iteration {}: {}".format(i, np.squeeze(cost**0.5)))
-            if i % 100 == 0 or i == self.num_iterations:
+            if i % print_every == 0 or i == self.num_iterations:
                 costs.append(cost**0.5)
 
         self.parameters = parameters
         self.costs = costs
+
+        if print_cost_function:
+            plt.plot(np.arange(0, len(self.costs)) * print_every, self.costs)
+            plt.title(f'Cost Function vs Number of Epochs ({self.learning_rate})')
+            plt.xlabel('Epochs')
+            plt.ylabel('Cost Function')
+            plt.grid()
+
         return parameters, costs
 
     def predict(self, X, y):
