@@ -66,7 +66,7 @@ def linear_activation_backward(dA, cache, activation):
 
 # GRADED FUNCTION: L_model_backward
 
-def L_model_backward(AL, Y, caches, cost_function):
+def L_model_backward(AL, Y, caches, task):
     """
     Implement the backward propagation for the [LINEAR->RELU] * (L-1) -> LINEAR -> SIGMOID group
 
@@ -89,22 +89,22 @@ def L_model_backward(AL, Y, caches, cost_function):
     Y = Y.reshape(AL.shape)  # after this line, Y is the same shape as AL
 
     # Initializing the backpropagation
-    if cost_function == 'cross_entropy':
+    if task == 'binary_classification':
         dAL = cross_entropy_derivative(Y, AL)
-    elif cost_function == 'RMSE':
+    elif task == 'regression':
         dAL = rmse_derivative(Y, AL)
     else:
-        raise Exception('Must specify a valid cost function')
+        raise Exception('Must specify a valid task')
 
     # Lth layer (SIGMOID -> LINEAR) gradients. Inputs: "dAL, current_cache". Outputs: "grads["dAL-1"], grads["dWL"],
     current_cache = caches[L - 1]
 
-    if cost_function == 'cross_entropy':
+    if task == 'binary_classification':
         dA_prev_temp, dW_temp, db_temp = linear_activation_backward(dAL, current_cache, 'sigmoid')
-    elif cost_function == 'RMSE':
+    elif task == 'regression':
         dA_prev_temp, dW_temp, db_temp = linear_activation_backward(dAL, current_cache, 'linear')
     else:
-        raise Exception('Moust specify a valid loss function')
+        raise Exception('Moust specify a valid task')
 
     grads["dA" + str(L - 1)] = dA_prev_temp
     grads["dW" + str(L)] = dW_temp

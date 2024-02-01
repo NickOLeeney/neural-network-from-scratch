@@ -9,11 +9,27 @@ from utils.preprocessing import process_data
 
 
 class NeuralNetworkFromScratch:
-    def __init__(self, layers_dims, cost_function, learning_rate=0.0075, num_iterations=3000, print_cost=False):
+    """
+    Simple Python package to construct a neural network.
+
+    Parameters
+    ----------
+        layers_dims : list
+                   Specify the number of layers and its relative nodes.
+        task : str
+            Specify the task (regression, binary classification or multiple classification).
+        learning_rate : float (default = 0.0075)
+                     Learning rate for the gradient descent.
+        num_iterations : int (default = 3000)
+                     Number of epochs for training the neural network
+        print_cost : bool (default = False)
+                  Specify wheter or not to print the cost function during training
+    """
+    def __init__(self, layers_dims, task, learning_rate=0.0075, num_iterations=3000, print_cost=False):
         self.costs = None
         self.parameters = None
         self.layers_dims = layers_dims
-        self.cost_function = cost_function
+        self.task = task
         self.learning_rate = learning_rate
         self.num_iterations = num_iterations
         self.print_cost = print_cost
@@ -46,18 +62,18 @@ class NeuralNetworkFromScratch:
         # Loop (gradient descent)
         for i in range(0, self.num_iterations):
             # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> SIGMOID.
-            AL, caches = L_model_forward(X, parameters, self.cost_function)
+            AL, caches = L_model_forward(X, parameters, self.task)
 
             # Compute cost.
-            if self.cost_function == 'cross_entropy':
+            if self.task == 'binary_classification':
                 cost = cross_entropy_cost(AL, Y)
-            elif self.cost_function == 'RMSE':
+            elif self.task == 'regression':
                 cost = rmse_cost(AL, Y)
             else:
                 raise Exception('Must specify a valid Cost Function')
 
             # Backward propagation.
-            grads = L_model_backward(AL, Y, caches, self.cost_function)
+            grads = L_model_backward(AL, Y, caches, self.task)
 
             # Update parameters.
             parameters = update_parameters(parameters, grads, self.learning_rate)
@@ -96,9 +112,9 @@ class NeuralNetworkFromScratch:
         y = process_data(y)
         outcome = None
 
-        if self.cost_function == 'cross_entropy':
+        if self.task == 'binary_classification':
             # Forward propagation
-            inference, caches = L_model_forward(X, self.parameters, self.cost_function)
+            inference, caches = L_model_forward(X, self.parameters, self.task)
             # convert probas to 0/1 predictions
             m = X.shape[1]
             n = len(self.parameters) // 2  # number of layers in the neural network
@@ -111,11 +127,11 @@ class NeuralNetworkFromScratch:
             outcome = p
             print("Accuracy: " + str(np.sum((outcome == y) / m)))
 
-        elif self.cost_function == 'RMSE':
+        elif self.task == 'regression':
             outcome = list()
             for x in X[0]:
                 # Forward propagation
-                inference, caches = L_model_forward(x, self.parameters, self.cost_function)
+                inference, caches = L_model_forward(x, self.parameters, self.task)
                 outcome.append(inference[0][0])
             outcome = np.array(outcome)
             # m = 1
