@@ -20,18 +20,18 @@ class NeuralNetworkFromScratch:
             Specify the task (regression, binary classification or multiple classification).
         learning_rate : float (default = 0.0075)
                      Learning rate for the gradient descent.
-        num_iterations : int (default = 3000)
+        n_epochs : int (default = 3000)
                      Number of epochs for training the neural network
         print_cost : bool (default = False)
                   Specify wheter or not to print the cost function during training
     """
-    def __init__(self, layers_dims, task, learning_rate=0.0075, num_iterations=3000, print_cost=False):
+    def __init__(self, layers_dims, task, learning_rate=0.0075, n_epochs=3000, print_cost=False):
         self.costs = None
         self.parameters = None
         self.layers_dims = layers_dims
         self.task = task
         self.learning_rate = learning_rate
-        self.num_iterations = num_iterations
+        self.n_epochs = n_epochs
         self.print_cost = print_cost
 
     def fit(self, X, Y, print_cost_function=False, print_every=100):
@@ -43,7 +43,7 @@ class NeuralNetworkFromScratch:
         Y -- true "label" vector (containing 1 if cat, 0 if non-cat), of shape (1, number of examples)
         layers_dims -- list containing the input size and each layer size, of length (number of layers + 1).
         learning_rate -- learning rate of the gradient descent update rule
-        num_iterations -- number of iterations of the optimization loop
+        n_epochs -- number of iterations of the optimization loop
         print_cost -- if True, it prints the cost every 100 steps
 
         Returns:
@@ -60,7 +60,7 @@ class NeuralNetworkFromScratch:
         parameters = initialize_parameters_deep(self.layers_dims)
 
         # Loop (gradient descent)
-        for i in range(0, self.num_iterations):
+        for i in range(0, self.n_epochs):
             # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> SIGMOID.
             AL, caches = L_model_forward(X, parameters, self.task)
 
@@ -79,9 +79,9 @@ class NeuralNetworkFromScratch:
             parameters = update_parameters(parameters, grads, self.learning_rate)
 
             # Print the cost every 100 iterations
-            if self.print_cost and i % print_every == 0 or i == self.num_iterations - 1:
+            if self.print_cost and i % print_every == 0 or i == self.n_epochs - 1:
                 print("Cost after iteration {}: {}".format(i, np.squeeze(cost**0.5)))
-            if i % print_every == 0 or i == self.num_iterations:
+            if i % print_every == 0 or i == self.n_epochs:
                 costs.append(cost**0.5)
 
         self.parameters = parameters
