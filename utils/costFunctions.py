@@ -6,8 +6,8 @@ def cross_entropy_cost(AL, Y):
     Implement the cost function defined by equation (7).
 
     Arguments:
-    AL -- probability vector corresponding to your label predictions, shape (1, number of examples)
-    Y -- true "label" vector (for example: containing 0 if non-cat, 1 if cat), shape (1, number of examples)
+    AL -- predicted vector, shape (1, number of examples)
+    Y -- true value vector (for example: containing 0 if non-cat, 1 if cat), shape (1, number of training examples)
 
     Returns:
     cost -- cross-entropy cost
@@ -27,8 +27,8 @@ def rmse_cost(AL, Y):
     Implement the RMSE cost function.
 
     Arguments:
-    AL -- output vector corresponding to your label predictions, shape (1, number of examples)
-    Y -- true "label" vector, shape (1, number of examples)
+    AL -- predicted vector, shape (1, number of examples)
+    Y -- true value vector (for example: containing 0 if non-cat, 1 if cat), shape (1, number of training examples)
 
     Returns:
     cost -- cross-entropy cost
@@ -45,11 +45,11 @@ def rmse_cost(AL, Y):
 
 def cross_entropy_derivative(Y, AL):
     """
-    Implement the Cross Entropy analytical derivative
+    Implement the Cross Entropy analytical derivative.
 
     Arguments:
-    AL -- probability vector corresponding to your label predictions, shape (1, number of examples)
-    Y -- true "label" vector (for example: containing 0 if non-cat, 1 if cat), shape (1, number of examples)
+    AL -- predicted vector, shape (1, number of examples)
+    Y -- true value vector (for example: containing 0 if non-cat, 1 if cat), shape (1, number of training examples)
 
     Returns:
     derivative_cost -- cross-entropy derivative cost
@@ -61,11 +61,11 @@ def cross_entropy_derivative(Y, AL):
 
 def rmse_derivative(Y, AL):
     """
-    Implement the RMSE analytical derivative
+    Implement the RMSE analytical derivative.
 
     Arguments:
-    AL -- output vector corresponding to your label predictions, shape (1, number of examples)
-    Y -- true "label" vector, shape (1, number of examples)
+    AL -- predicted vector, shape (1, number of examples)
+    Y -- true value vector (for example: containing 0 if non-cat, 1 if cat), shape (1, number of training examples)
 
     Returns:
     derivative_cost -- RMSE derivative cost

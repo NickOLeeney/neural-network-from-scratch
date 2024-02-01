@@ -64,8 +64,6 @@ def linear_activation_backward(dA, cache, activation):
     return dA_prev, dW, db
 
 
-# GRADED FUNCTION: L_model_backward
-
 def L_model_backward(AL, Y, caches, task):
     """
     Implement the backward propagation for the [LINEAR->RELU] * (L-1) -> LINEAR -> SIGMOID group

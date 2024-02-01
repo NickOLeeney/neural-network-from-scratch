@@ -34,17 +34,14 @@ class NeuralNetworkFromScratch:
         self.n_epochs = n_epochs
         self.print_cost = print_cost
 
-    def fit(self, X, Y, print_cost_function=False, print_every=100):
+    def fit(self, X, Y, plot_cost_function=False, print_every=100):
         """
         Implements an L-layer neural network: [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID.
 
         Arguments:
-        X -- input data, of shape (n_x, number of examples)
-        Y -- true "label" vector (containing 1 if cat, 0 if non-cat), of shape (1, number of examples)
-        layers_dims -- list containing the input size and each layer size, of length (number of layers + 1).
-        learning_rate -- learning rate of the gradient descent update rule
-        n_epochs -- number of iterations of the optimization loop
-        print_cost -- if True, it prints the cost every 100 steps
+        X -- input data, of shape (n_features, number of training examples).
+        Y -- true "label" vector.
+        plot_cost_function -- if True, it plots the cost function during the training.
 
         Returns:
         parameters -- parameters learnt by the model. They can then be used to predict.
@@ -87,7 +84,7 @@ class NeuralNetworkFromScratch:
         self.parameters = parameters
         self.costs = costs
 
-        if print_cost_function:
+        if plot_cost_function:
             plt.plot(np.arange(0, len(self.costs)) * print_every, self.costs)
             plt.title(f'Cost Function vs Number of Epochs ({self.learning_rate})')
             plt.xlabel('Epochs')
@@ -98,14 +95,13 @@ class NeuralNetworkFromScratch:
 
     def predict(self, X, y):
         """
-        This function is used to predict the results of a  L-layer neural network.
+        This function is used to predict the results of an L-layer neural network.
 
         Arguments:
-        X -- data set of examples you would like to label
-        parameters -- parameters of the trained model
+        X -- data set of examples you would like to predict.
 
         Returns:
-        p -- predictions for the given dataset X
+        outcome -- predictions for the given dataset X.
         """
 
         X = process_data(X)
