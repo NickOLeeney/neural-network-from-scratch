@@ -118,7 +118,7 @@ class NeuralNetworkFromScratch:
                 inference, caches = L_model_forward(x, self.parameters, self.cost_function)
                 outcome.append(inference[0][0])
             outcome = np.array(outcome)
-            m = 1
+            # m = 1
 
             cost = rmse_cost(outcome, y)
             print("RMSE: " + str(cost**0.5))
