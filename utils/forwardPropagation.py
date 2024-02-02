@@ -55,6 +55,10 @@ def linear_activation_forward(A_prev, W, b, activation):
         Z, linear_cache = linear_forward(A_prev, W, b)
         A, activation_cache = linear(Z)
 
+    elif activation == 'softmax':
+        Z, linear_cache = linear_forward(A_prev, W, b)
+        A, activation_cache = softmax(Z)
+
     cache = (linear_cache, activation_cache)
 
     return A, cache
@@ -89,6 +93,8 @@ def L_model_forward(X, parameters, task):
         AL, cache = linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], 'sigmoid')
     elif task == 'regression':
         AL, cache = linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], 'linear')
+    elif task == 'multiple_classification':
+        AL, cache = linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], 'softmax')
     else:
         raise Exception('Must specify a valid task')
 

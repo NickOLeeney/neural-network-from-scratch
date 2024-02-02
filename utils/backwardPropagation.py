@@ -48,12 +48,10 @@ def linear_activation_backward(dA, cache, activation):
     linear_cache, activation_cache = cache
 
     if activation == "relu":
-
         dZ = relu_backward(dA, activation_cache)
         dA_prev, dW, db = linear_backward(dZ, linear_cache)
 
     elif activation == "sigmoid":
-
         dZ = sigmoid_backward(dA, activation_cache)
         dA_prev, dW, db = linear_backward(dZ, linear_cache)
 
@@ -87,7 +85,7 @@ def L_model_backward(AL, Y, caches, task):
     Y = Y.reshape(AL.shape)  # after this line, Y is the same shape as AL
 
     # Initializing the backpropagation
-    if task == 'binary_classification':
+    if task == 'binary_classification' or task == 'multiple_classification':
         dAL = cross_entropy_derivative(Y, AL)
     elif task == 'regression':
         dAL = rmse_derivative(Y, AL)
@@ -97,7 +95,7 @@ def L_model_backward(AL, Y, caches, task):
     # Lth layer (SIGMOID -> LINEAR) gradients. Inputs: "dAL, current_cache". Outputs: "grads["dAL-1"], grads["dWL"],
     current_cache = caches[L - 1]
 
-    if task == 'binary_classification':
+    if task == 'binary_classification' or task == 'multiple_classification':
         dA_prev_temp, dW_temp, db_temp = linear_activation_backward(dAL, current_cache, 'sigmoid')
     elif task == 'regression':
         dA_prev_temp, dW_temp, db_temp = linear_activation_backward(dAL, current_cache, 'linear')

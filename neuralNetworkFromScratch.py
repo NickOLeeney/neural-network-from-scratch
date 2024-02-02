@@ -25,6 +25,7 @@ class NeuralNetworkFromScratch:
         print_cost : bool (default = False)
                   Specify wheter or not to print the cost function during training
     """
+
     def __init__(self, layers_dims, task, learning_rate=0.0075, n_epochs=3000, print_cost=False):
         self.costs = None
         self.parameters = None
@@ -50,6 +51,19 @@ class NeuralNetworkFromScratch:
         X = process_data(X)
         Y = process_data(Y)
 
+        if self.task == 'multiple_classification':
+            n_classes = len(np.unique(Y))
+            def target_encoder(target):
+                output = np.zeros(n_classes)
+                for value in range(0, n_classes):
+                    if value == target:
+                        output[value] = 1
+                        return output
+
+            Y = np.array(list((map(target_encoder, Y[0]))))
+            Y = np.concatenate(Y, axis=0).reshape(n_classes, X.shape[1])
+
+
         np.random.seed(1)
         costs = []  # keep track of cost
 
@@ -62,10 +76,13 @@ class NeuralNetworkFromScratch:
             AL, caches = L_model_forward(X, parameters, self.task)
 
             # Compute cost.
-            if self.task == 'binary_classification':
+            if self.task == 'binary_classification' or self.task == 'multiple_classification':
                 cost = cross_entropy_cost(AL, Y)
             elif self.task == 'regression':
                 cost = rmse_cost(AL, Y)
+            if self.task == 'multiple_classification':
+                cost = cross_entropy_cost(AL, Y)
+                cost = cost.sum()
             else:
                 raise Exception('Must specify a valid Cost Function')
 
@@ -77,9 +94,9 @@ class NeuralNetworkFromScratch:
 
             # Print the cost every 100 iterations
             if self.print_cost and i % print_every == 0 or i == self.n_epochs - 1:
-                print("Cost after iteration {}: {}".format(i, np.squeeze(cost**0.5)))
+                print("Cost after iteration {}: {}".format(i, np.squeeze(cost ** 0.5)))
             if i % print_every == 0 or i == self.n_epochs:
-                costs.append(cost**0.5)
+                costs.append(cost ** 0.5)
 
         self.parameters = parameters
         self.costs = costs
@@ -133,6 +150,6 @@ class NeuralNetworkFromScratch:
             # m = 1
 
             cost = rmse_cost(outcome, y)
-            print("RMSE: " + str(cost**0.5))
+            print("RMSE: " + str(cost ** 0.5))
 
         return outcome

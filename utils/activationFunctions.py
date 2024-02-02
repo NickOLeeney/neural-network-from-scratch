@@ -56,6 +56,26 @@ def linear(Z):
     return A, cache
 
 
+def softmax(Z):
+    """
+    Implement the SOFTMAX function.
+
+    Arguments:
+    Z -- Output of the linear layer, of any shape
+
+    Returns:
+    A -- Post-activation parameter, of the same shape as Z
+    cache -- a python dictionary containing "A" ; stored for computing the backward pass efficiently
+    """
+
+    sum_exp = np.exp(Z).sum()
+    A = np.exp(Z) / sum_exp
+    assert (A.shape == Z.shape)
+
+    cache = Z
+    return A, cache
+
+
 def relu_backward(dA, cache):
     """
     Implement the backward propagation for a single RELU unit.
@@ -115,6 +135,29 @@ def linear_backward(dA, cache):
 
     Z = cache
     dZ = np.array(dA, copy=True)  # just converting dz to a correct object.
+
+    assert (dZ.shape == Z.shape)
+
+    return dZ
+
+
+def softmax_backward(dA, cache):
+    """
+    Implement the backward propagation for a single SOFTMAX unit.
+
+    Arguments:
+    dA -- post-activation gradient, of any shape
+    cache -- 'Z' where we store for computing backward propagation efficiently
+
+    Returns:
+    dZ -- Gradient of the cost with respect to Z
+    """
+
+    Z = cache
+
+    softmax = np.exp(Z) / np.exp(Z).sum()
+
+    dZ = dA * s * (1 - s)
 
     assert (dZ.shape == Z.shape)
 
