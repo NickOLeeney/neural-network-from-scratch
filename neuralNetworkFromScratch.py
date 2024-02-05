@@ -86,9 +86,9 @@ class NeuralNetworkFromScratch:
 
             # Print the cost every 100 iterations
             if self.print_cost and i % print_every == 0 or i == self.n_epochs - 1:
-                print("Cost after iteration {}: {}".format(i, np.squeeze(cost ** 0.5)))
+                print("Cost after iteration {}: {}".format(i, np.squeeze(cost)))
             if i % print_every == 0 or i == self.n_epochs:
-                costs.append(cost ** 0.5)
+                costs.append(cost)
 
         self.parameters = parameters
         self.costs = costs
@@ -139,9 +139,8 @@ class NeuralNetworkFromScratch:
                 inference, caches = L_model_forward(x, self.parameters, self.task)
                 outcome.append(inference[0][0])
             outcome = np.array(outcome)
-            # m = 1
 
             cost = rmse_cost(outcome, y)
-            print("RMSE: " + str(cost ** 0.5))
+            print("RMSE: " + str(cost))
 
         return outcome
