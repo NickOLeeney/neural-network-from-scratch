@@ -5,7 +5,7 @@ from utils.backwardPropagation import L_model_backward, update_parameters
 from utils.costFunctions import *
 from utils.initialization import initialize_parameters_deep
 from utils.forwardPropagation import L_model_forward
-from utils.preprocessing import process_data
+from utils.preprocessing import process_data, target_encoder
 
 
 class NeuralNetworkFromScratch:
@@ -48,24 +48,17 @@ class NeuralNetworkFromScratch:
         parameters -- parameters learnt by the model. They can then be used to predict.
         """
 
+        np.random.seed(1)
+
         X = process_data(X)
         Y = process_data(Y)
 
         if self.task == 'multiple_classification':
             n_classes = len(np.unique(Y))
-            def target_encoder(target):
-                output = np.zeros(n_classes)
-                for value in range(0, n_classes):
-                    if value == target:
-                        output[value] = 1
-                        return output
-
-            Y = np.array(list((map(target_encoder, Y[0]))))
+            Y = np.array(list((map(target_encoder, Y[0], [n_classes for x in Y[0]]))))
             Y = np.concatenate(Y, axis=0).reshape(n_classes, X.shape[1])
 
-
-        np.random.seed(1)
-        costs = []  # keep track of cost
+        costs = list()  # keep track of cost
 
         # Parameters initialization.
         parameters = initialize_parameters_deep(self.layers_dims)
@@ -76,13 +69,12 @@ class NeuralNetworkFromScratch:
             AL, caches = L_model_forward(X, parameters, self.task)
 
             # Compute cost.
-            if self.task == 'binary_classification' or self.task == 'multiple_classification':
+            if self.task == 'binary_classification':
                 cost = cross_entropy_cost(AL, Y)
             elif self.task == 'regression':
                 cost = rmse_cost(AL, Y)
-            if self.task == 'multiple_classification':
-                cost = cross_entropy_cost(AL, Y)
-                cost = cost.sum()
+            elif self.task == 'multiple_classification':
+                cost = cross_entropy_cost_softmax(AL, Y)
             else:
                 raise Exception('Must specify a valid Cost Function')
 

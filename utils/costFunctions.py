@@ -43,6 +43,27 @@ def rmse_cost(AL, Y):
     return cost
 
 
+def cross_entropy_cost_softmax(AL, Y):
+    """
+    Implement the cost function defined by equation (7).
+
+    Arguments:
+    AL -- predicted vector, shape (1, number of examples)
+    Y -- true value vector (for example: containing 0 if non-cat, 1 if cat), shape (1, number of training examples)
+
+    Returns:
+    cost -- cross-entropy cost
+    """
+
+    m = Y.shape[1]
+
+    # Compute loss from aL and y.
+    cost = (1. / m) * ((Y * np.log(AL)) - (1 - Y) * np.log(1 - AL)).sum(axis=1).sum()
+    cost = np.squeeze(cost)  # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
+
+    return cost
+
+
 def cross_entropy_derivative(Y, AL):
     """
     Implement the Cross Entropy analytical derivative.
