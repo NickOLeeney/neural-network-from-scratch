@@ -53,7 +53,8 @@ def linear_activation_forward(A_prev, W, b, activation):
 
     elif activation == 'linear':
         Z, linear_cache = linear_forward(A_prev, W, b)
-        A, activation_cache = linear(Z)
+        # A, activation_cache = linear(Z)
+        A, activation_cache = relu(Z)
 
     elif activation == 'softmax':
         Z, linear_cache = linear_forward(A_prev, W, b)
@@ -66,7 +67,7 @@ def linear_activation_forward(A_prev, W, b, activation):
 
 def L_model_forward(X, parameters, task):
     """
-    Implement forward propagation for the [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID computation
+    Implement forward propagation for the [LINEAR->RELU]*(L-1)->LINEAR->FINAL ACTIVATION FUNCTION computation
 
     Arguments:
     X -- data, numpy array of shape (input size, number of examples)

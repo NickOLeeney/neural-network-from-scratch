@@ -132,9 +132,28 @@ class NeuralNetworkFromScratch:
             outcome = p
             print("Accuracy: " + str(np.sum((outcome == y) / m)))
 
+        if self.task == 'multiple_classification':
+
+            output = list()
+            m = X.shape[1]
+
+            # Forward propagation
+            inference, caches = L_model_forward(X, self.parameters, self.task)
+
+            # convert probas to 0/1 predictions
+            for col in range(0, m):
+                out_class = np.where(inference[:, col] == max(inference[:, col]))[0]
+                output.append(out_class)
+            outcome = np.array(output).flatten()
+            outcome = outcome.reshape(1, outcome.shape[0])
+
+            print("Accuracy: " + str(np.sum((outcome == y) / m)))
+
         elif self.task == 'regression':
             outcome = list()
-            for x in X[0]:
+            for i in range(0, X.shape[1]):
+                x = X[:, i]
+                x = x.reshape(-1, 1)
                 # Forward propagation
                 inference, caches = L_model_forward(x, self.parameters, self.task)
                 outcome.append(inference[0][0])
