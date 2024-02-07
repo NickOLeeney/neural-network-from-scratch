@@ -93,7 +93,7 @@ class NeuralNetworkFromScratch:
         self.parameters = parameters
         self.costs = costs
 
-        if plot_cost_function:
+        if plot_cost_function and self.n_epochs >= print_every:
             plt.plot(np.arange(0, len(self.costs)) * print_every, self.costs)
             plt.title(f'Cost Function vs Number of Epochs ({self.learning_rate})')
             plt.xlabel('Epochs')
@@ -151,13 +151,15 @@ class NeuralNetworkFromScratch:
 
         elif self.task == 'regression':
             outcome = list()
-            for i in range(0, X.shape[1]):
-                x = X[:, i]
-                x = x.reshape(-1, 1)
-                # Forward propagation
-                inference, caches = L_model_forward(x, self.parameters, self.task)
-                outcome.append(inference[0][0])
-            outcome = np.array(outcome)
+            # for i in range(0, X.shape[1]):
+            #     x = X[:, i]
+            #     x = x.reshape(-1, 1)
+            #     # Forward propagation
+            #     inference, caches = L_model_forward(x, self.parameters, self.task)
+            #     outcome.append(inference[0][0])
+
+            inference, caches = L_model_forward(X, self.parameters, self.task)
+            outcome = inference[0].reshape(1, -1)
 
             cost = rmse_cost(outcome, y)
             print("RMSE: " + str(cost))
