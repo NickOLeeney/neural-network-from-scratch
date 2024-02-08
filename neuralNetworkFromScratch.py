@@ -27,13 +27,33 @@ class NeuralNetworkFromScratch:
     """
 
     def __init__(self, layers_dims, task, learning_rate=0.0075, n_epochs=3000, print_cost=False):
-        self.costs = None
-        self.parameters = None
-        self.layers_dims = layers_dims
-        self.task = task
-        self.learning_rate = learning_rate
-        self.n_epochs = n_epochs
-        self.print_cost = print_cost
+        self._costs = None
+        self._parameters = None
+        self._layers_dims = layers_dims
+        self._task = task
+        self._learning_rate = learning_rate
+        self._n_epochs = n_epochs
+        self._print_cost = print_cost
+
+    @property
+    def layers_dims(self):
+        return self._layers_dims
+
+    @property
+    def task(self):
+        return self._task
+
+    @property
+    def learning_rate(self):
+        return self._learning_rate
+
+    @property
+    def n_epochs(self):
+        return self._n_epochs
+
+    @property
+    def prin_cost(self):
+        return self._print_cost
 
     def fit(self, X, Y, plot_cost_function=False, print_every=100):
         """
@@ -53,7 +73,7 @@ class NeuralNetworkFromScratch:
         X = process_data(X)
         Y = process_data(Y)
 
-        if self.task == 'multiple_classification':
+        if self._task == 'multiple_classification':
             n_classes = len(np.unique(Y))
             Y = np.array(list((map(target_encoder, Y[0], [n_classes for x in Y[0]]))))
             Y = np.concatenate(Y, axis=0).reshape(n_classes, X.shape[1])
@@ -61,41 +81,41 @@ class NeuralNetworkFromScratch:
         costs = list()  # keep track of cost
 
         # Parameters initialization.
-        parameters = initialize_parameters_deep(self.layers_dims)
+        parameters = initialize_parameters_deep(self._layers_dims)
 
         # Loop (gradient descent)
-        for i in range(0, self.n_epochs):
+        for i in range(0, self._n_epochs):
             # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> SIGMOID.
-            AL, caches = L_model_forward(X, parameters, self.task)
+            AL, caches = L_model_forward(X, parameters, self._task)
 
             # Compute cost.
-            if self.task == 'binary_classification':
+            if self._task == 'binary_classification':
                 cost = cross_entropy_cost(AL, Y)
-            elif self.task == 'regression':
+            elif self._task == 'regression':
                 cost = rmse_cost(AL, Y)
-            elif self.task == 'multiple_classification':
+            elif self._task == 'multiple_classification':
                 cost = cross_entropy_cost_softmax(AL, Y)
             else:
                 raise Exception('Must specify a valid Cost Function')
 
             # Backward propagation.
-            grads = L_model_backward(AL, Y, caches, self.task)
+            grads = L_model_backward(AL, Y, caches, self._task)
 
             # Update parameters.
-            parameters = update_parameters(parameters, grads, self.learning_rate)
+            parameters = update_parameters(parameters, grads, self._learning_rate)
 
             # Print the cost every 100 iterations
-            if self.print_cost and i % print_every == 0 or i == self.n_epochs - 1:
+            if self._print_cost and i % print_every == 0 or i == self._n_epochs - 1:
                 print("Cost after iteration {}: {}".format(i, np.squeeze(cost)))
-            if i % print_every == 0 or i == self.n_epochs:
+            if i % print_every == 0 or i == self._n_epochs:
                 costs.append(cost)
 
-        self.parameters = parameters
-        self.costs = costs
+        self._parameters = parameters
+        self._costs = costs
 
-        if plot_cost_function and self.n_epochs >= print_every:
-            plt.plot(np.arange(0, len(self.costs)) * print_every, self.costs)
-            plt.title(f'Cost Function vs Number of Epochs ({self.learning_rate})')
+        if plot_cost_function and self._n_epochs >= print_every:
+            plt.plot(np.arange(0, len(self._costs)) * print_every, self._costs)
+            plt.title(f'Cost Function vs Number of Epochs ({self._learning_rate})')
             plt.xlabel('Epochs')
             plt.ylabel('Cost Function')
             plt.grid()
@@ -117,12 +137,12 @@ class NeuralNetworkFromScratch:
         y = process_data(y)
         outcome = None
 
-        if self.task == 'binary_classification':
+        if self._task == 'binary_classification':
             # Forward propagation
-            inference, caches = L_model_forward(X, self.parameters, self.task)
+            inference, caches = L_model_forward(X, self._parameters, self._task)
             # convert probas to 0/1 predictions
             m = X.shape[1]
-            n = len(self.parameters) // 2  # number of layers in the neural network
+            n = len(self._parameters) // 2  # number of layers in the neural network
             p = np.zeros((1, m))
             for i in range(0, inference.shape[1]):
                 if inference[0, i] > 0.5:
@@ -132,13 +152,13 @@ class NeuralNetworkFromScratch:
             outcome = p
             print("Accuracy: " + str(np.sum((outcome == y) / m)))
 
-        if self.task == 'multiple_classification':
+        if self._task == 'multiple_classification':
 
             output = list()
             m = X.shape[1]
 
             # Forward propagation
-            inference, caches = L_model_forward(X, self.parameters, self.task)
+            inference, caches = L_model_forward(X, self._parameters, self._task)
 
             # convert probas to 0/1 predictions
             for col in range(0, m):
@@ -149,16 +169,16 @@ class NeuralNetworkFromScratch:
 
             print("Accuracy: " + str(np.sum((outcome == y) / m)))
 
-        elif self.task == 'regression':
+        elif self._task == 'regression':
             outcome = list()
             # for i in range(0, X.shape[1]):
             #     x = X[:, i]
             #     x = x.reshape(-1, 1)
             #     # Forward propagation
-            #     inference, caches = L_model_forward(x, self.parameters, self.task)
+            #     inference, caches = L_model_forward(x, self._parameters, self._task)
             #     outcome.append(inference[0][0])
 
-            inference, caches = L_model_forward(X, self.parameters, self.task)
+            inference, caches = L_model_forward(X, self._parameters, self._task)
             outcome = inference[0].reshape(1, -1)
 
             cost = rmse_cost(outcome, y)
