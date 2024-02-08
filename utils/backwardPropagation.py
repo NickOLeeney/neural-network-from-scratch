@@ -59,6 +59,10 @@ def linear_activation_backward(dA, cache, activation):
         dZ = dA
         dA_prev, dW, db = linear_backward(dZ, linear_cache)
 
+    elif activation == "softmax":
+        dZ = softmax_backward(dA, activation_cache)
+        dA_prev, dW, db = linear_backward(dZ, linear_cache)
+
     return dA_prev, dW, db
 
 
@@ -95,10 +99,12 @@ def L_model_backward(AL, Y, caches, task):
     # Lth layer (SIGMOID -> LINEAR) gradients. Inputs: "dAL, current_cache". Outputs: "grads["dAL-1"], grads["dWL"],
     current_cache = caches[L - 1]
 
-    if task == 'binary_classification' or task == 'multiple_classification':
+    if task == 'binary_classification':
         dA_prev_temp, dW_temp, db_temp = linear_activation_backward(dAL, current_cache, 'sigmoid')
     elif task == 'regression':
         dA_prev_temp, dW_temp, db_temp = linear_activation_backward(dAL, current_cache, 'linear')
+    elif task == 'multiple_classification':
+        dA_prev_temp, dW_temp, db_temp = linear_activation_backward(dAL, current_cache, 'softmax')
     else:
         raise Exception('Moust specify a valid task')
 
