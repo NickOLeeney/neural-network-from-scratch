@@ -53,8 +53,8 @@ def linear_activation_forward(A_prev, W, b, activation):
 
     elif activation == 'linear':
         Z, linear_cache = linear_forward(A_prev, W, b)
-        # A, activation_cache = linear(Z)
-        A, activation_cache = relu(Z)
+        A, activation_cache = linear(Z)
+        # A, activation_cache = relu(Z)
 
     elif activation == 'softmax':
         Z, linear_cache = linear_forward(A_prev, W, b)
