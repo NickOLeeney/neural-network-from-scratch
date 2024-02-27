@@ -26,7 +26,7 @@ class NeuralNetworkFromScratch:
                   Specify wheter or not to print the cost function during training
     """
 
-    def __init__(self, layers_dims, task, learning_rate=0.0075, n_epochs=3000, print_cost=False, init='He'):
+    def __init__(self, layers_dims, task, learning_rate=0.0075, n_epochs=3000, print_cost=False, initialization='He'):
         self._costs = None
         self._parameters = None
         self._layers_dims = layers_dims
@@ -34,7 +34,7 @@ class NeuralNetworkFromScratch:
         self._learning_rate = learning_rate
         self._n_epochs = n_epochs
         self._print_cost = print_cost
-        self.init = init
+        self.init = initialization
 
     @property
     def layers_dims(self):
