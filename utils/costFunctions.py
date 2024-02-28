@@ -38,7 +38,7 @@ def rmse_cost(AL, Y):
 
     # Compute loss from aL and y.
     # cost = (1. / (2. * m)) * (np.sum((AL - Y) ** 2))**0.5
-    cost = ((1. / (2. * m)) * np.sum((AL - Y)**2))**2
+    cost = ((1. / (2. * m)) * np.sum((AL - Y) ** 2)) ** 2
     cost = np.squeeze(cost)  # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
 
     return cost
@@ -96,3 +96,14 @@ def rmse_derivative(Y, AL):
 
     derivative_cost = (AL - Y)
     return derivative_cost
+
+
+def l2_regularization(lambd, parameters, cost):
+    L2_regularization_cost = 0
+    for layer in range(1, ((len(parameters) // 2) + 1)):
+        Wl = parameters['W' + str(layer)]
+        L2_regularization_cost_item = np.sum(np.square(Wl))
+        L2_regularization_cost += L2_regularization_cost_item
+
+    L2_regularization_cost = (lambd / (2 * m)) * L2_regularization_cost
+    cost = cost + L2_regularization_cost
