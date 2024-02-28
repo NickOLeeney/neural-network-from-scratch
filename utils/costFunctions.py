@@ -98,7 +98,7 @@ def rmse_derivative(Y, AL):
     return derivative_cost
 
 
-def l2_regularization(lambd, parameters, cost):
+def l2_regularization(lambd, parameters, cost, m):
     L2_regularization_cost = 0
     for layer in range(1, ((len(parameters) // 2) + 1)):
         Wl = parameters['W' + str(layer)]
@@ -107,3 +107,4 @@ def l2_regularization(lambd, parameters, cost):
 
     L2_regularization_cost = (lambd / (2 * m)) * L2_regularization_cost
     cost = cost + L2_regularization_cost
+    return cost

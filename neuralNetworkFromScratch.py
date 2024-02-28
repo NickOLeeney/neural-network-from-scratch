@@ -102,10 +102,11 @@ class NeuralNetworkFromScratch:
                 raise Exception('Must specify a valid Cost Function')
 
             if self.lambd:
-                cost = l2_regularization(self.lambd, parameters, cost)
+                m = Y.shape[1]
+                cost = l2_regularization(self.lambd, parameters, cost, m)
 
             # Backward propagation.
-            grads = L_model_backward(AL, Y, caches, self._task)
+            grads = L_model_backward(AL, Y, caches, self._task, self.lambd)
 
             # Update parameters.
             parameters = update_parameters(parameters, grads, self._learning_rate)
