@@ -26,7 +26,8 @@ class NeuralNetworkFromScratch:
                   Specify wheter or not to print the cost function during training
     """
 
-    def __init__(self, layers_dims, task, learning_rate=0.0075, n_epochs=3000, print_cost=False, initialization='He'):
+    def __init__(self, layers_dims, task, learning_rate=0.0075, n_epochs=3000, print_cost=False, initialization='He',
+                 lambd=None):
         self._costs = None
         self._parameters = None
         self._layers_dims = layers_dims
@@ -35,6 +36,7 @@ class NeuralNetworkFromScratch:
         self._n_epochs = n_epochs
         self._print_cost = print_cost
         self.init = initialization
+        self.lambd = lambd
 
     @property
     def layers_dims(self):
@@ -98,6 +100,16 @@ class NeuralNetworkFromScratch:
                 cost = cross_entropy_cost_softmax(AL, Y)
             else:
                 raise Exception('Must specify a valid Cost Function')
+
+            if self.lambd:
+                L2_regularization_cost = 0
+                for layer in range(1, ((len(parameters) // 2) + 1)):
+                    Wl = parameters['W' + str(layer)]
+                    L2_regularization_cost_item = np.sum(np.square(Wl))
+                    L2_regularization_cost += L2_regularization_cost_item
+
+                L2_regularization_cost = (lambd / (2 * m)) * L2_regularization_cost
+                cost = cost + L2_regularization_cost
 
             # Backward propagation.
             grads = L_model_backward(AL, Y, caches, self._task)
