@@ -27,7 +27,7 @@ class NeuralNetworkFromScratch:
     """
 
     def __init__(self, layers_dims, task, learning_rate=0.0075, n_epochs=3000, print_cost=False, initialization='He',
-                 lambd=None):
+                 lambd=None, keep_prob=1):
         self._costs = None
         self._parameters = None
         self._layers_dims = layers_dims
@@ -37,6 +37,7 @@ class NeuralNetworkFromScratch:
         self._print_cost = print_cost
         self.init = initialization
         self.lambd = lambd
+        self.keep_prob = keep_prob
 
     @property
     def layers_dims(self):
@@ -89,7 +90,7 @@ class NeuralNetworkFromScratch:
         # Loop (gradient descent)
         for i in range(0, self._n_epochs):
             # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> SIGMOID.
-            AL, caches = L_model_forward(X, parameters, self._task)
+            AL, caches, dropout_cache = L_model_forward(X, parameters, self._task, self.keep_prob)
 
             # Compute cost.
             if self._task == 'binary_classification':
@@ -106,7 +107,7 @@ class NeuralNetworkFromScratch:
                 cost = l2_regularization(self.lambd, parameters, cost, m)
 
             # Backward propagation.
-            grads = L_model_backward(AL, Y, caches, self._task, self.lambd)
+            grads = L_model_backward(AL, Y, caches, self._task, self.lambd, self.keep_prob, dropout_cache)
 
             # Update parameters.
             parameters = update_parameters(parameters, grads, self._learning_rate)
@@ -146,7 +147,7 @@ class NeuralNetworkFromScratch:
 
         if self._task == 'binary_classification':
             # Forward propagation
-            inference, caches = L_model_forward(X, self._parameters, self._task)
+            inference, caches, _ = L_model_forward(X, self._parameters, self._task, self.keep_prob)
             # convert probas to 0/1 predictions
             m = X.shape[1]
             n = len(self._parameters) // 2  # number of layers in the neural network
@@ -160,12 +161,11 @@ class NeuralNetworkFromScratch:
             print("Accuracy: " + str(np.sum((outcome == y) / m)))
 
         if self._task == 'multiple_classification':
-
             output = list()
             m = X.shape[1]
 
             # Forward propagation
-            inference, caches = L_model_forward(X, self._parameters, self._task)
+            inference, caches, _ = L_model_forward(X, self._parameters, self._task, self.keep_prob)
 
             # convert probas to 0/1 predictions
             for col in range(0, m):
@@ -185,7 +185,7 @@ class NeuralNetworkFromScratch:
             #     inference, caches = L_model_forward(x, self._parameters, self._task)
             #     outcome.append(inference[0][0])
 
-            inference, caches = L_model_forward(X, self._parameters, self._task)
+            inference, caches, _ = L_model_forward(X, self._parameters, self._task, self.keep_prob)
             outcome = inference[0].reshape(1, -1)
 
             cost = rmse_cost(outcome, y)

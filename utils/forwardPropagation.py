@@ -21,9 +21,7 @@ def linear_forward(A, W, b):
     return Z, cache
 
 
-# GRADED FUNCTION: linear_activation_forward
-
-def linear_activation_forward(A_prev, W, b, activation):
+def linear_activation_forward(A_prev, W, b, activation, keep_prob):
     """
     Implement the forward propagation for the LINEAR->ACTIVATION layer
 
@@ -54,18 +52,23 @@ def linear_activation_forward(A_prev, W, b, activation):
     elif activation == 'linear':
         Z, linear_cache = linear_forward(A_prev, W, b)
         A, activation_cache = linear(Z)
-        # A, activation_cache = relu(Z)
 
     elif activation == 'softmax':
         Z, linear_cache = linear_forward(A_prev, W, b)
         A, activation_cache = softmax(Z)
 
+    # Dropout
+    dropout = np.random.rand(A.shape[0], A.shape[1])
+    dropout = (dropout < keep_prob).astype(int)
+    A = A * dropout
+    A = A / keep_prob
+
     cache = (linear_cache, activation_cache)
 
-    return A, cache
+    return A, cache, dropout
 
 
-def L_model_forward(X, parameters, task):
+def L_model_forward(X, parameters, task, keep_prob):
     """
     Implement forward propagation for the [LINEAR->RELU]*(L-1)->LINEAR->FINAL ACTIVATION FUNCTION computation
 
@@ -80,6 +83,7 @@ def L_model_forward(X, parameters, task):
     """
 
     caches = []
+    dropout_cache = [1]
     A = X
     L = len(parameters) // 2  # number of layers in the neural network
 
@@ -87,18 +91,25 @@ def L_model_forward(X, parameters, task):
     # The for loop starts at 1 because layer 0 is the input
     for l in range(1, L):
         A_prev = A
-        A, cache = linear_activation_forward(A_prev, parameters['W' + str(l)], parameters['b' + str(l)], 'relu')
+        A, cache, dropout = linear_activation_forward(A_prev, parameters['W' + str(l)], parameters['b' + str(l)],
+                                                      'relu',
+                                                      keep_prob)
         caches.append(cache)
+        dropout_cache.append(dropout)
 
     if task == 'binary_classification':
-        AL, cache = linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], 'sigmoid')
+        AL, cache, dropout = linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], 'sigmoid',
+                                                       keep_prob)
     elif task == 'regression':
-        AL, cache = linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], 'linear')
+        AL, cache, dropout = linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], 'linear',
+                                                       keep_prob)
     elif task == 'multiple_classification':
-        AL, cache = linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], 'softmax')
+        AL, cache, dropout = linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], 'softmax',
+                                                       keep_prob)
     else:
         raise Exception('Must specify a valid task')
 
     caches.append(cache)
+    dropout_cache.append(dropout)
 
-    return AL, caches
+    return AL, caches, dropout_cache

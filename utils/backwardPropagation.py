@@ -27,7 +27,7 @@ def linear_backward(dZ, cache):
     return dA_prev, dW, db
 
 
-def linear_activation_backward(dA, cache, activation):
+def linear_activation_backward(dA, cache, activation, keep_prob, dropout):
     """
     Implement the backward propagation for the LINEAR->ACTIVATION layer.
 
@@ -63,10 +63,14 @@ def linear_activation_backward(dA, cache, activation):
         dZ = softmax_backward(dA, activation_cache)
         dA_prev, dW, db = linear_backward(dZ, linear_cache)
 
+    # mask on dA prev
+    dA_prev = dA_prev * dropout
+    dA_prev = dA_prev / keep_prob
+
     return dA_prev, dW, db
 
 
-def L_model_backward(AL, Y, caches, task, lambd):
+def L_model_backward(AL, Y, caches, task, lambd, keep_prob, dropout_cache):
     """
     Implement the backward propagation for the [LINEAR->RELU] * (L-1) -> LINEAR -> SIGMOID group
 
@@ -98,13 +102,14 @@ def L_model_backward(AL, Y, caches, task, lambd):
 
     # Lth layer (SIGMOID -> LINEAR) gradients. Inputs: "dAL, current_cache". Outputs: "grads["dAL-1"], grads["dWL"],
     current_cache = caches[L - 1]
+    dropout = dropout_cache[L - 1]
 
     if task == 'binary_classification':
-        dA_prev_temp, dW_temp, db_temp = linear_activation_backward(dAL, current_cache, 'sigmoid')
+        dA_prev_temp, dW_temp, db_temp = linear_activation_backward(dAL, current_cache, 'sigmoid', keep_prob, dropout)
     elif task == 'regression':
-        dA_prev_temp, dW_temp, db_temp = linear_activation_backward(dAL, current_cache, 'linear')
+        dA_prev_temp, dW_temp, db_temp = linear_activation_backward(dAL, current_cache, 'linear', keep_prob, dropout)
     elif task == 'multiple_classification':
-        dA_prev_temp, dW_temp, db_temp = linear_activation_backward(dAL, current_cache, 'softmax')
+        dA_prev_temp, dW_temp, db_temp = linear_activation_backward(dAL, current_cache, 'softmax', keep_prob, dropout)
     else:
         raise Exception('Moust specify a valid task')
 
@@ -116,7 +121,9 @@ def L_model_backward(AL, Y, caches, task, lambd):
     for l in reversed(range(L - 1)):
         # lth layer: (RELU -> LINEAR) gradients.
         current_cache = caches[l]
-        dA_prev_temp, dW_temp, db_temp = linear_activation_backward(grads["dA" + str(l + 1)], current_cache, 'relu')
+        dropout = dropout_cache[l]
+
+        dA_prev_temp, dW_temp, db_temp = linear_activation_backward(grads["dA" + str(l + 1)], current_cache, 'relu', keep_prob, dropout)
         grads["dA" + str(l)] = dA_prev_temp
         grads["dW" + str(l + 1)] = dW_temp
         grads["db" + str(l + 1)] = db_temp
