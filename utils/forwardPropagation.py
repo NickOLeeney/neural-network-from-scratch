@@ -59,7 +59,7 @@ def linear_activation_forward(A_prev, W, b, activation, keep_prob):
 
     # Dropout
     dropout = np.random.rand(A.shape[0], A.shape[1])
-    dropout = (dropout < keep_prob).astype(int)
+    dropout = (dropout <= keep_prob).astype(int)
     A = A * dropout
     A = A / keep_prob
 
@@ -83,7 +83,7 @@ def L_model_forward(X, parameters, task, keep_prob):
     """
 
     caches = []
-    dropout_cache = [1]
+    dropout_cache = [None]
     A = X
     L = len(parameters) // 2  # number of layers in the neural network
 
@@ -99,13 +99,13 @@ def L_model_forward(X, parameters, task, keep_prob):
 
     if task == 'binary_classification':
         AL, cache, dropout = linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], 'sigmoid',
-                                                       keep_prob)
+                                                       keep_prob=1)
     elif task == 'regression':
         AL, cache, dropout = linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], 'linear',
-                                                       keep_prob)
+                                                       keep_prob=1)
     elif task == 'multiple_classification':
         AL, cache, dropout = linear_activation_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], 'softmax',
-                                                       keep_prob)
+                                                       keep_prob=1)
     else:
         raise Exception('Must specify a valid task')
 

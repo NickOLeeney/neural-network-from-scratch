@@ -63,9 +63,13 @@ def linear_activation_backward(dA, cache, activation, keep_prob, dropout):
         dZ = softmax_backward(dA, activation_cache)
         dA_prev, dW, db = linear_backward(dZ, linear_cache)
 
-    # mask on dA prev
-    dA_prev = dA_prev * dropout
-    dA_prev = dA_prev / keep_prob
+    # Mask on dA prev
+    if dropout is not None:
+        if dropout.all() == 1:
+            keep_prob = 1.
+
+        dA_prev = dA_prev * dropout
+        dA_prev = dA_prev / keep_prob
 
     return dA_prev, dW, db
 
@@ -105,11 +109,11 @@ def L_model_backward(AL, Y, caches, task, lambd, keep_prob, dropout_cache):
     dropout = dropout_cache[L - 1]
 
     if task == 'binary_classification':
-        dA_prev_temp, dW_temp, db_temp = linear_activation_backward(dAL, current_cache, 'sigmoid', keep_prob, dropout)
+        dA_prev_temp, dW_temp, db_temp = linear_activation_backward(dAL, current_cache, 'sigmoid', 1, dropout)
     elif task == 'regression':
-        dA_prev_temp, dW_temp, db_temp = linear_activation_backward(dAL, current_cache, 'linear', keep_prob, dropout)
+        dA_prev_temp, dW_temp, db_temp = linear_activation_backward(dAL, current_cache, 'linear', 1, dropout)
     elif task == 'multiple_classification':
-        dA_prev_temp, dW_temp, db_temp = linear_activation_backward(dAL, current_cache, 'softmax', keep_prob, dropout)
+        dA_prev_temp, dW_temp, db_temp = linear_activation_backward(dAL, current_cache, 'softmax', 1, dropout)
     else:
         raise Exception('Moust specify a valid task')
 
