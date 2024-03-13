@@ -1,11 +1,19 @@
+import warnings
+
 import numpy as np
 import matplotlib.pyplot as plt
+
+import warnings
+
+
 
 from utils.backwardPropagation import L_model_backward, update_parameters
 from utils.costFunctions import *
 from utils.initialization import initialize_parameters_deep
 from utils.forwardPropagation import L_model_forward
 from utils.preprocessing import process_data, target_encoder
+
+# warnings.filterwarnings("ignore")
 
 
 class NeuralNetworkFromScratch:
@@ -112,6 +120,7 @@ class NeuralNetworkFromScratch:
                     plt.xlabel('Epochs')
                     plt.ylabel('Cost Function')
                     plt.grid()
+
                 return parameters, costs
 
             if self.lambd:
