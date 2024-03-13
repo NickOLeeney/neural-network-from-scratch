@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 
 def cross_entropy_cost(AL, Y):
@@ -16,7 +17,9 @@ def cross_entropy_cost(AL, Y):
     m = Y.shape[1]
 
     # Compute loss from aL and y.
+
     cost = (1. / m) * (-np.dot(Y, np.log(AL).T) - np.dot(1 - Y, np.log(1 - AL).T))
+
     cost = np.squeeze(cost)  # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
 
     return cost
@@ -79,6 +82,7 @@ def cross_entropy_derivative(Y, AL):
     """
 
     derivative_cost = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
+
     return derivative_cost
 
 

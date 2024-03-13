@@ -102,6 +102,18 @@ class NeuralNetworkFromScratch:
             else:
                 raise Exception('Must specify a valid Cost Function')
 
+            if math.isnan(cost.item()):
+                self._parameters = parameters
+                self._costs = costs
+
+                if plot_cost_function and self._n_epochs >= print_every:
+                    plt.plot(np.arange(0, len(self._costs)) * print_every, self._costs)
+                    plt.title(f'Cost Function vs Number of Epochs ({self._learning_rate})')
+                    plt.xlabel('Epochs')
+                    plt.ylabel('Cost Function')
+                    plt.grid()
+                return parameters, costs
+
             if self.lambd:
                 m = Y.shape[1]
                 cost = l2_regularization(self.lambd, parameters, cost, m)
