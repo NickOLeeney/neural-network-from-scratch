@@ -5,13 +5,13 @@ import matplotlib.pyplot as plt
 
 import warnings
 
-
-
 from utils.backwardPropagation import L_model_backward, update_parameters
 from utils.costFunctions import *
 from utils.initialization import initialize_parameters_deep
 from utils.forwardPropagation import L_model_forward
 from utils.preprocessing import process_data, target_encoder
+from utils.gradientCheck import gradient_check_n
+
 
 # warnings.filterwarnings("ignore")
 
@@ -129,6 +129,9 @@ class NeuralNetworkFromScratch:
 
             # Backward propagation.
             grads = L_model_backward(AL, Y, caches, self._task, self.lambd, self.keep_prob, dropout_cache)
+
+            # GRADIENT CHECK
+            difference = gradient_check_n(parameters, grads, epsilon=1e-7, print_msg=True)
 
             # Update parameters.
             parameters = update_parameters(parameters, grads, self._learning_rate)
