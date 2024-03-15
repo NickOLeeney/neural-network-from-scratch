@@ -145,7 +145,7 @@ def gradient_check_n(parameters, gradients, X, Y, task, epsilon=1e-7, print_msg=
     difference = numerator / denominator
 
     if print_msg:
-        if difference > 2e-7:
+        if difference > 2.5 * epsilon:
             print("\033[93m" + "There is a mistake in the backward propagation! difference = " + str(
                 difference) + "\033[0m")
         else:
