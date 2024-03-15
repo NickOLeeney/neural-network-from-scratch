@@ -53,17 +53,17 @@ def gradients_to_vector(gradients):
     Roll all our gradients dictionary into a single vector satisfying our specific required shape.
     """
     theta = None
+    param_list = list()
     count = 0
 
-    dW_list = [x for x in list(gradients.keys()) if
-     ('W' in x)][::-1]
-    db_list = [x for x in list(gradients.keys()) if
-     ('b' in x)][::-1]
+    dW_list = [x for x in list(gradients.keys()) if ('W' in x)][::-1]
+    db_list = [x for x in list(gradients.keys()) if ('b' in x)][::-1]
 
-    param_list = [dW_list[i]+db_list[i] for i in range (0,len(dW_list))]
+    for i in range(0, len(dW_list)):
+        param_list.append(dW_list[i])
+        param_list.append(db_list[i])
 
-    for key in [x for x in list(gradients.keys()) if
-                ('W' in x or 'b' in x)][::-1]:  # should be like ["dW1", "db1", "dW2", "db2", "dW3", "db3"]
+    for key in param_list:  # should be like ["dW1", "db1", "dW2", "db2", "dW3", "db3"]
         # flatten parameter
         new_vector = np.reshape(gradients[key], (-1, 1))
 
