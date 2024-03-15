@@ -131,7 +131,7 @@ class NeuralNetworkFromScratch:
             grads = L_model_backward(AL, Y, caches, self._task, self.lambd, self.keep_prob, dropout_cache)
 
             # GRADIENT CHECK
-            difference = gradient_check_n(parameters, grads, epsilon=1e-7, print_msg=True)
+            difference = gradient_check_n(parameters, grads, X, Y, self._task, epsilon=1e-7, print_msg=True)
 
             # Update parameters.
             parameters = update_parameters(parameters, grads, self._learning_rate)
