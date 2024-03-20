@@ -41,7 +41,7 @@ def rmse_cost(AL, Y):
 
     # Compute loss from aL and y.
     # cost = (1. / (2. * m)) * (np.sum((AL - Y) ** 2))**0.5
-    cost = ((1. / (2. * m)) * np.sum((AL - Y) ** 2)) ** 2
+    cost = ((1. / (2. * m)) * np.sum((AL - Y) ** 2))
     cost = np.squeeze(cost)  # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
 
     return cost

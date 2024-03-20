@@ -80,7 +80,7 @@ class NeuralNetworkFromScratch:
         parameters -- parameters learnt by the model. They can then be used to predict.
         """
 
-        np.random.seed(1)
+        # np.random.seed(1)
 
         X = process_data(X)
         Y = process_data(Y)

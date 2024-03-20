@@ -2,7 +2,6 @@ import numpy as np
 from utils.costFunctions import *
 from utils.forwardPropagation import L_model_forward
 
-
 def dictionary_to_vector(parameters):
     """
     Roll all our parameters dictionary into a single vector satisfying our specific required shape.
@@ -93,7 +92,7 @@ def gradient_check_n(parameters, gradients, X, Y, task, epsilon=1e-7, print_msg=
 
     # Set-up variables
     parameters_values, _ = dictionary_to_vector(parameters)
-    grad = gradients_to_vector(gradients)
+    _grad = gradients_to_vector(gradients)
     num_parameters = parameters_values.shape[0]
     J_plus = np.zeros((num_parameters, 1))
     J_minus = np.zeros((num_parameters, 1))
@@ -140,8 +139,8 @@ def gradient_check_n(parameters, gradients, X, Y, task, epsilon=1e-7, print_msg=
         gradapprox[i] = (J_plus[i] - J_minus[i]) / (2 * epsilon)
 
     # Compare gradapprox to backward propagation gradients by computing difference.
-    numerator = np.linalg.norm(grad - gradapprox)
-    denominator = np.linalg.norm(grad) + np.linalg.norm(gradapprox)
+    numerator = np.linalg.norm(_grad - gradapprox)
+    denominator = np.linalg.norm(_grad) + np.linalg.norm(gradapprox)
     difference = numerator / denominator
 
     if print_msg:
