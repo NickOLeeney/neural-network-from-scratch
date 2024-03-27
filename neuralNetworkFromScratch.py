@@ -11,6 +11,7 @@ from utils.initialization import initialize_parameters_deep
 from utils.forwardPropagation import L_model_forward
 from utils.preprocessing import process_data, target_encoder
 from utils.gradientCheck import gradient_check_n
+from sklearn.preprocessing import OneHotEncoder
 
 
 # warnings.filterwarnings("ignore")
@@ -82,13 +83,16 @@ class NeuralNetworkFromScratch:
 
         # np.random.seed(1)
 
-        X = process_data(X)
-        Y = process_data(Y)
-
         if self._task == 'multiple_classification':
             n_classes = len(np.unique(Y))
-            Y = np.array(list((map(target_encoder, Y[0], [n_classes for x in Y[0]]))))
+            enc = OneHotEncoder(sparse=False, categories='auto')
+            Y = enc.fit_transform(Y.to_numpy().reshape(len(Y), -1)).T
+            # Y = np.array(list((map(target_encoder, Y[0], [n_classes for x in Y[0]]))))
+            X = process_data(X)
             Y = np.concatenate(Y, axis=0).reshape(n_classes, X.shape[1])
+        else:
+            X = process_data(X)
+            Y = process_data(Y)
 
         costs = list()  # keep track of cost
 

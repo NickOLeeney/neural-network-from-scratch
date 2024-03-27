@@ -60,7 +60,7 @@ def linear_activation_backward(dA, cache, activation, keep_prob, dropout):
         dA_prev, dW, db = linear_backward(dZ, linear_cache)
 
     elif activation == "softmax":
-        dZ = softmax_backward(dA, activation_cache)
+        dZ = dA
         dA_prev, dW, db = linear_backward(dZ, linear_cache)
 
     # Mask on dA prev
@@ -94,10 +94,13 @@ def L_model_backward(AL, Y, caches, task, lambd, keep_prob, dropout_cache):
     Y = Y.reshape(AL.shape)  # after this line, Y is the same shape as AL
 
     # Initializing the backpropagation
-    if task == 'binary_classification' or task == 'multiple_classification':
+    if task == 'binary_classification':
         dAL = cross_entropy_derivative(Y, AL)
     elif task == 'regression':
         dAL = rmse_derivative(Y, AL)
+    elif task == 'multiple_classification':
+        dZ = AL - Y
+        dAL = dZ
     else:
         raise Exception('Must specify a valid task')
 

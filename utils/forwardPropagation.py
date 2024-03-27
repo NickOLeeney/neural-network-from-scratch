@@ -114,6 +114,7 @@ def L_model_forward(X, parameters, task, keep_prob):
 
     return AL, caches, dropout_cache
 
+
 def L_model_forward_grad_check(X, parameters, task, keep_prob):
     """
     Implement forward propagation for the [LINEAR->RELU]*(L-1)->LINEAR->FINAL ACTIVATION FUNCTION computation
