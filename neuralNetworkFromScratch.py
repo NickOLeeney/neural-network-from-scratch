@@ -85,7 +85,7 @@ class NeuralNetworkFromScratch:
 
         if self._task == 'multiple_classification':
             n_classes = len(np.unique(Y))
-            enc = OneHotEncoder(sparse=False, categories='auto')
+            enc = OneHotEncoder(sparse_output=False, categories='auto')
             X = process_data(X)
             Y = enc.fit_transform(Y.to_numpy().reshape(len(Y), -1)).T
             Y = np.concatenate(Y, axis=0).reshape(n_classes, X.shape[1])
