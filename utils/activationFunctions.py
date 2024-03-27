@@ -69,13 +69,10 @@ def softmax(Z):
     cache -- a python dictionary containing "A" ; stored for computing the backward pass efficiently
     """
 
-    # sum_exp = np.exp(Z).sum(axis=0)
-    # A = np.exp(Z) / sum_exp
-    # assert (A.shape == Z.shape)
-
     cache = Z
     expZ = np.exp(Z - np.max(Z))
     A = expZ / expZ.sum(axis=0, keepdims=True)
+    assert (A.shape == Z.shape)
 
     return A, cache
 
