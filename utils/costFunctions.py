@@ -77,7 +77,7 @@ def cross_entropy_derivative(Y, AL):
     derivative_cost -- cross-entropy derivative cost
     """
 
-    derivative_cost = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
+    derivative_cost = - (np.divide(Y, AL + 1e-9) - np.divide(1 - Y, 1 - AL + 1e-9))
 
     return derivative_cost
 
