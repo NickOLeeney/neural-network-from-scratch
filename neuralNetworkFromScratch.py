@@ -11,6 +11,7 @@ from utils.initialization import initialize_parameters_deep
 from utils.forwardPropagation import L_model_forward
 from utils.preprocessing import process_data, target_encoder
 from utils.gradientCheck import gradient_check_n
+from utils.gradientDescent import *
 from sklearn.preprocessing import OneHotEncoder
 
 
@@ -68,7 +69,7 @@ class NeuralNetworkFromScratch:
     def print_cost(self):
         return self._print_cost
 
-    def fit(self, X, Y, plot_cost_function=False, debug=None, print_every=100):
+    def fit(self, X, Y, optimizer='adam', plot_cost_function=False, debug=None, print_every=100, mini_batch_size=None, beta=0.9, beta1=0.9, beta2=0.999, epsilon=1e-8):
         """
         Implements an L-layer neural network: [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID.
 
@@ -89,64 +90,98 @@ class NeuralNetworkFromScratch:
             X = process_data(X)
             Y = enc.fit_transform(Y.to_numpy().reshape(len(Y), -1)).T
             Y = np.concatenate(Y, axis=0).reshape(n_classes, X.shape[1])
-
         else:
             X = process_data(X)
             Y = process_data(Y)
 
         costs = list()  # keep track of cost
+        L = len(self.layers_dims)  # number of layers in the neural networks
+        t = 0  # initializing the counter required for Adam update
+        seed = 10  # For grading purposes, so that your "random" minibatches are the same as ours
+        m = X.shape[1]  # number of training examples
+        if not mini_batch_size:
+            mini_batch_size = m
 
         # Parameters initialization.
         parameters = initialize_parameters_deep(self._layers_dims, self.init)
 
+        # Initialize the optimizer
+        if optimizer == "gd":
+            pass  # no initialization required for gradient descent
+        elif optimizer == "momentum":
+            v = initialize_velocity(parameters)
+        elif optimizer == "adam":
+            v, s = initialize_adam(parameters)
+
         # Loop (gradient descent)
         for i in range(0, self._n_epochs):
-            # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> SIGMOID.
-            AL, caches, dropout_cache = L_model_forward(X, parameters, self._task, self.keep_prob)
+            # Define the random minibatches. We increment the seed to reshuffle differently the dataset after each epoch
+            seed = seed + 1
+            minibatches = random_mini_batches(X, Y, mini_batch_size, seed)
+            cost_total = 0
 
-            # Compute cost.
-            if self._task == 'binary_classification':
-                cost = cross_entropy_cost(AL, Y)
-            elif self._task == 'regression':
-                cost = rmse_cost(AL, Y)
-            elif self._task == 'multiple_classification':
-                cost = cross_entropy_cost_softmax(AL, Y)
-            else:
-                raise Exception('Must specify a valid Cost Function')
+            for minibatch in minibatches:
+                # Select a minibatch
+                (minibatch_X, minibatch_Y) = minibatch
 
-            if math.isnan(cost.item()):
-                self._parameters = parameters
-                self._costs = costs
+                # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> SIGMOID.
+                AL, caches, dropout_cache = L_model_forward(minibatch_X, parameters, self._task, self.keep_prob)
 
-                if plot_cost_function and self._n_epochs >= print_every:
-                    plt.plot(np.arange(0, len(self._costs)) * print_every, self._costs)
-                    plt.title(f'Cost Function vs Number of Epochs ({self._learning_rate})')
-                    plt.xlabel('Epochs')
-                    plt.ylabel('Cost Function')
-                    plt.grid()
+                # Compute cost.
+                if self._task == 'binary_classification':
+                    cost = cross_entropy_cost(AL, minibatch_Y)
+                elif self._task == 'regression':
+                    cost = rmse_cost(AL, minibatch_Y)
+                elif self._task == 'multiple_classification':
+                    cost = cross_entropy_cost_softmax(AL, minibatch_Y)
+                else:
+                    raise Exception('Must specify a valid Cost Function')
 
-                return parameters, costs
+                if math.isnan(cost.item()):
+                    self._parameters = parameters
+                    self._costs = costs
 
-            if self.lambd:
-                m = Y.shape[1]
-                cost = l2_regularization(self.lambd, parameters, cost, m)
+                    if plot_cost_function and self._n_epochs >= print_every:
+                        plt.plot(np.arange(0, len(self._costs)) * print_every, self._costs)
+                        plt.title(f'Cost Function vs Number of Epochs ({self._learning_rate})')
+                        plt.xlabel('Epochs')
+                        plt.ylabel('Cost Function')
+                        plt.grid()
 
-            # Backward propagation.
-            grads = L_model_backward(AL, Y, caches, self._task, self.lambd, self.keep_prob, dropout_cache)
+                    return parameters, costs
 
-            # GRADIENT CHECK
-            if debug:
-                if i % debug == 0:
-                    _ = gradient_check_n(parameters, grads, X, Y, self._task, epsilon=1e-7, print_msg=True)
+                if self.lambd:
+                    m = Y.shape[1]
+                    cost = l2_regularization(self.lambd, parameters, cost, m)
 
-            # Update parameters.
-            parameters = update_parameters(parameters, grads, self._learning_rate)
+                cost_total += cost
+
+                # Backward propagation.
+                grads = L_model_backward(AL, minibatch_Y, caches, self._task, self.lambd, self.keep_prob, dropout_cache)
+
+                # GRADIENT CHECK
+                if debug:
+                    if i % debug == 0:
+                        _ = gradient_check_n(parameters, grads, minibatch_X, minibatch_Y, self._task, epsilon=1e-7,
+                                             print_msg=True)
+
+                # Update parameters
+                if optimizer == "gd":
+                    parameters = update_parameters_with_gd(parameters, grads, self.learning_rate)
+                elif optimizer == "momentum":
+                    parameters, v = update_parameters_with_momentum(parameters, grads, v, beta, self.learning_rate)
+                elif optimizer == "adam":
+                    t = t + 1  # Adam counter
+                    parameters, v, s, _, _ = update_parameters_with_adam(parameters, grads, v, s,
+                                                                         t, self.learning_rate, beta1, beta2, epsilon)
+
+            cost_avg = cost_total / m
 
             # Print the cost every 100 iterations
             if self._print_cost and i % print_every == 0 or i == self._n_epochs - 1:
-                print("Cost after iteration {}: {}".format(i, np.squeeze(cost)))
+                print("Cost after iteration {}: {}".format(i, np.squeeze(cost_avg)))
             if i % print_every == 0 or i == self._n_epochs:
-                costs.append(cost)
+                costs.append(cost_avg)
 
         self._parameters = parameters
         self._costs = costs
