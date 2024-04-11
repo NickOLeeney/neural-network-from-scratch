@@ -12,6 +12,7 @@ from utils.forwardPropagation import L_model_forward
 from utils.preprocessing import process_data, target_encoder
 from utils.gradientCheck import gradient_check_n
 from utils.gradientDescent import *
+from utils.learningRate import *
 from sklearn.preprocessing import OneHotEncoder
 
 
@@ -20,34 +21,34 @@ from sklearn.preprocessing import OneHotEncoder
 
 class NeuralNetworkFromScratch:
     """
-    Simple Python package to construct a neural network.
+    Simple Python package to construct a neural network. \n
 
-    Parameters
+    Parameters: \n
+
     ----------
-        layers_dims : list
-                   Specify the number of layers and its relative nodes.
-        task : str
-            Specify the task (regression, binary classification or multiple classification).
-        learning_rate : float (default = 0.0075)
-                     Learning rate for the gradient descent.
-        n_epochs : int (default = 3000)
-                     Number of epochs for training the neural network
-        print_cost : bool (default = False)
-                  Specify wheter or not to print the cost function during training
+    - layers_dims (list) : Specify the number of layers and its relative nodes. \n
+    - task (str): Specify the task (regression, binary classification or multiple classification). \n
+    - learning_rate (float) : Learning rate for the gradient descent. \n
+    - n_epochs (int) :  Number of epochs for training the neural network. \n
+    - print_cost (bool): Specify wheter or not to print the cost function during training. \n
+    - initialization (str): Specify the initialization for the parameters, possible choiches: "He" (default), "Xavier". \n
+    - lambd (float) : regularization parameters. Set to None to not use it. \n
+    - dropout (float) : dropout pararameter. It defines the percentage (from 0 to 1) of nodes to drop for every layer (default 1, menaning no drop out). \n
+    ----------
     """
 
     def __init__(self, layers_dims, task, learning_rate=0.0075, n_epochs=3000, print_cost=False, initialization='He',
-                 lambd=None, keep_prob=1):
+                 lambd=None, dropout=1):
         self._costs = None
         self._parameters = None
         self._layers_dims = layers_dims
         self._task = task
-        self._learning_rate = learning_rate
+        self.learning_rate = learning_rate
         self._n_epochs = n_epochs
         self._print_cost = print_cost
         self.init = initialization
         self.lambd = lambd
-        self.keep_prob = keep_prob
+        self.keep_prob = dropout
 
     @property
     def layers_dims(self):
@@ -58,10 +59,6 @@ class NeuralNetworkFromScratch:
         return self._task
 
     @property
-    def learning_rate(self):
-        return self._learning_rate
-
-    @property
     def n_epochs(self):
         return self._n_epochs
 
@@ -69,20 +66,28 @@ class NeuralNetworkFromScratch:
     def print_cost(self):
         return self._print_cost
 
-    def fit(self, X, Y, optimizer='adam', plot_cost_function=False, debug=None, print_every=100, mini_batch_size=None, beta=0.9, beta1=0.9, beta2=0.999, epsilon=1e-8):
+    def fit(self, X, Y, optimizer='adam', debug=None, print_every=None,
+            mini_batch_size=None, beta=0.9, beta1=0.9, beta2=0.999, epsilon=1e-8, decay=(None, None)):
         """
-        Implements an L-layer neural network: [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID.
+        Implements an L-layer neural network. \n
 
-        Arguments:
-        X -- input data, of shape (n_features, number of training examples).
-        Y -- true "label" vector.
-        plot_cost_function -- if True, it plots the cost function during the training.
-
-        Returns:
-        parameters -- parameters learnt by the model. They can then be used to predict.
+        ---------- \n
+        Arguments: \n
+        - X (*pandas Dataframe, numpy array*): input data, of shape (n_features, number of training examples). \n
+        - Y (*pandas Dataframe, numpy array*): true "label" vector. \n
+        - optimizer (*str*) : optimizer used for gradient descent, options are: "gd", "momentum", "adam". \n
+        - debug (*bool*) : wheter or not you want to do gradient check. \n
+        - print_every (*int*) : frequency to plot the cost function. If set to None, it does not print anything. \n
+        - mini_batch_size (*int*) : mini-batch size to perform gradient descent. Set to 1 for Stochastic Gradient Descent, for Classic Gradient Descent, n for Mini-batch Gradient Descent. Consider using power of 2 number to increase efficinency. \n
+        - beta (*float*) : momentum parameter used for "momentum" optimizer. Optimal values range from 0.8 to 0.999, 0.9 is often a reasonable default. \n
+        - beta1 (*float*) : first momentum parameter used for "adam" optimizer. Optimal values range from 0.8 to 0.999, 0.9 is often a reasonable default. \n
+        - beta2 (*float*) : second momentum parameter used for "adam" optimizer. Optimal values range from 0.8 to 0.999, 0.999 is often a reasonable default. \n
+        - epsilon (*float*) : parameters used to avoid dividing by zero numerical problems, consider not to modify it. \n
+        - decay (*tuple*) : learning rate decay. Specifies decay rate (float) and frequency of updated, i.e. how many epochs to update learning rate. \n
+        ---------- \n
+        Returns: \n
+        - parameters : parameters learnt by the model. They can then be used to predict.
         """
-
-        # np.random.seed(1)
 
         if self._task == 'multiple_classification':
             n_classes = len(np.unique(Y))
@@ -97,8 +102,14 @@ class NeuralNetworkFromScratch:
         costs = list()  # keep track of cost
         L = len(self.layers_dims)  # number of layers in the neural networks
         t = 0  # initializing the counter required for Adam update
-        seed = 10  # For grading purposes, so that your "random" minibatches are the same as ours
+        seed = int(np.random.rand()*100)
         m = X.shape[1]  # number of training examples
+        decay_rate, freq_update = decay
+
+        learning_rate0 = self.learning_rate  # Setting leraning rate for scehduling
+        v = None
+        s = None
+
         if not mini_batch_size:
             mini_batch_size = m
 
@@ -141,9 +152,9 @@ class NeuralNetworkFromScratch:
                     self._parameters = parameters
                     self._costs = costs
 
-                    if plot_cost_function and self._n_epochs >= print_every:
+                    if print_every and self._n_epochs >= print_every:
                         plt.plot(np.arange(0, len(self._costs)) * print_every, self._costs)
-                        plt.title(f'Cost Function vs Number of Epochs ({self._learning_rate})')
+                        plt.title(f'Cost Function vs Number of Epochs ({self.learning_rate})')
                         plt.xlabel('Epochs')
                         plt.ylabel('Cost Function')
                         plt.grid()
@@ -175,6 +186,9 @@ class NeuralNetworkFromScratch:
                     parameters, v, s, _, _ = update_parameters_with_adam(parameters, grads, v, s,
                                                                          t, self.learning_rate, beta1, beta2, epsilon)
 
+            if decay_rate:
+                self.learning_rate = lr_decay(self.learning_rate, i, decay_rate, freq_update)
+
             cost_avg = cost_total / m
 
             # Print the cost every 100 iterations
@@ -186,9 +200,9 @@ class NeuralNetworkFromScratch:
         self._parameters = parameters
         self._costs = costs
 
-        if plot_cost_function and self._n_epochs >= print_every:
+        if self._print_cost and self._n_epochs >= print_every:
             plt.plot(np.arange(0, len(self._costs)) * print_every, self._costs)
-            plt.title(f'Cost Function vs Number of Epochs ({self._learning_rate})')
+            plt.title(f'Cost Function vs Number of Epochs ({learning_rate0})')
             plt.xlabel('Epochs')
             plt.ylabel('Cost Function')
             plt.grid()
